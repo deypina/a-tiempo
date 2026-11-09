@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Android 11 and older. Backs up only the database and preferences.
+     requireFlags keeps the backup end-to-end encrypted where the device supports it (Android 9+). -->
+<full-backup-content>
+    <include domain="database" path="." requireFlags="clientSideEncryption" />
+    <include domain="file" path="datastore/" requireFlags="clientSideEncryption" />
+</full-backup-content>

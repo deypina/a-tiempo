@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Every visible text comes from docs/TEXTOS_UI.md. Add new keys there first. -->
+<resources xmlns:tools="http://schemas.android.com/tools" tools:locale="es">
+    <string name="app_name">A Tiempo</string>
+    <string name="tab_today">Hoy</string>
+    <string name="tab_meds">Mis medicamentos</string>
+    <string name="tab_settings">Ajustes</string>
+
+    <string name="today_greeting_no_name">Hola</string>
+    <string name="today_subtitle">Sus tomas de hoy</string>
+
+    <string name="meds_title">Mis medicamentos</string>
+    <string name="settings_title">Ajustes</string>
+    <string name="disclaimer">A Tiempo solo le ayuda a organizarse. No reemplaza las indicaciones de su médico.</string>
+</resources>

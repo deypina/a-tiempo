@@ -158,9 +158,36 @@ Diseño: colores sobrios con un verde de acento para "tomada" y ámbar/rojo para
 - Firma release leída de variables de entorno (`KEYSTORE_PATH`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`). Si no existen, compilar release sin firmar no debe romper el build de debug.
 - La llave se crea **una sola vez** y se guarda en un lugar seguro + secretos de GitHub. Perderla obliga a desinstalar (y perder datos) para actualizar.
 - `.github/workflows/build-apk.yml` compila en cada push a `main` (artefacto) y publica en Releases al subir una etiqueta `v*`.
+- El release usa R8 (`isMinifyEnabled` y `isShrinkResources`) para reducir tamaño y no es depurable.
 
 ## 8. Pruebas
 
 - Unitarias del dominio: confirmar, idempotencia, deshacer, umbrales (incluidos cruces dobles y medias pastillas), compra, ajuste, días restantes, próxima ocurrencia de alarma (cambio de día, medianoche).
 - Instrumentadas mínimas: DAO de Room.
 - Manuales: `docs/CASOS_DE_PRUEBA.md`.
+
+## 9. Seguridad y privacidad
+
+La app guarda datos de salud. Reglas que toda fase debe cumplir:
+
+**Datos y red**
+- Sin permisos de red. El manifiesto los elimina con `tools:node="remove"` por si una librería los agrega, y `scripts/check-no-internet.sh` hace fallar la compilación si el APK pide INTERNET, ACCESS_NETWORK_STATE o ACCESS_WIFI_STATE.
+- La base de datos y DataStore viven en el almacenamiento privado de la app. No escribir datos en almacenamiento compartido ni en logs (`Log.d` con nombres de medicamentos está prohibido en release).
+- Respaldo: solo base de datos y `datastore/`. En Android 12+ la copia en la nube exige cifrado de extremo a extremo (`disableIfNoEncryptionCapabilities`); en Android 9–11 se usa `requireFlags="clientSideEncryption"`.
+- Exportar e importar respaldo (v1.1): validar el JSON antes de escribir (tipos, rangos, stock ≥ 0) y hacerlo en una transacción; un archivo inválido no cambia nada.
+
+**Componentes de Android**
+- Solo `MainActivity` es `exported="true"`. Los receptores de acciones de notificación y de alarmas son `exported="false"`.
+- El receptor de arranque y cambio de hora es `exported="true"` (lo exige el sistema), pero solo reprograma alarmas: no lee datos del Intent ni cambia el inventario.
+- Todo `PendingIntent` usa `FLAG_IMMUTABLE` e Intents explícitos (con la clase de destino).
+- Los receptores validan el `eventId` o `medicationId` contra la base de datos antes de actuar; un id desconocido se ignora.
+
+**Notificaciones**
+- Por pedido del PRD (F3), las notificaciones de toma son visibles en la pantalla bloqueada, así que muestran el nombre del medicamento. Es una decisión de usabilidad sobre privacidad; si se cambia, usar `VISIBILITY_PRIVATE` con una versión pública sin el nombre del medicamento.
+
+**Compilación y publicación**
+- La llave de firma nunca entra al repositorio (`.gitignore`). En CI se decodifica en `$RUNNER_TEMP` y se borra al terminar.
+- El workflow tiene permisos de solo lectura; solo el trabajo `release` (etiquetas `v*`) puede escribir.
+- Las GitHub Actions se fijan por SHA del commit. Dependabot propone actualizaciones semanales de Actions y de dependencias Gradle.
+- El wrapper de Gradle se verifica: `distributionSha256Sum` en `gradle-wrapper.properties` y validación del jar en CI.
+- Reporte de vulnerabilidades en privado: ver `SECURITY.md`.

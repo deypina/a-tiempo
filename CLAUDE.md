@@ -38,6 +38,7 @@ Si encuentras una contradicción entre documentos, pregunta antes de decidir.
 - Las alarmas se reprograman en: arranque del teléfono, cambio de hora/zona, actualización de la app y al editar un medicamento.
 - Botones de mínimo 56 dp de alto, texto base 18 sp, contraste alto. Respeta el tamaño de letra del sistema.
 - No uses IA ni llamadas a modelos en la app.
+- Cumple la sección 9 de `docs/ESPECIFICACION_TECNICA.md` (seguridad y privacidad) en cada fase.
 
 ## Comandos
 
