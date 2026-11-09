@@ -4,6 +4,7 @@ Reglas de estilo:
 - Trato de **usted**, cálido y breve. Frases cortas.
 - Usar `{nombre}` (nombre o apodo elegido). Si está vacío, omitir el saludo sin dejar coma suelta.
 - Evitar adjetivos con género para que sirva a cualquier persona ("¿Cómo le gustaría que le llamemos?").
+- Las líneas de inventario se arman con `join_dot`: "Le quedan 8 pastillas · le alcanza para 8 días".
 - Cantidades: "1 pastilla", "2 pastillas", "½ pastilla", "1½ pastillas". Con 1 o ½ se usa singular también en el verbo: "Le queda 1 pastilla", "Le queda ½ pastilla" (en Android, con recursos `plurals`).
 - No poner artículos delante de `{medicamento}` ("su {medicamento}", "de {medicamento}"), porque cada nombre tiene su propio género.
 - Nada de lenguaje médico ni consejos de salud.
@@ -17,6 +18,11 @@ Reglas de estilo:
 | tab_settings | Ajustes |
 | common_cancel | Cancelar |
 | common_delete | Eliminar |
+| common_ok | Aceptar |
+| common_back | Volver |
+| join_dot | {a} · {b} |
+| qty_pill_one | {n} pastilla |
+| qty_pill_other | {n} pastillas |
 
 ## Bienvenida
 | Clave | Texto |
@@ -49,9 +55,11 @@ Reglas de estilo:
 | status_missed | No confirmada |
 | btn_taken | Ya la tomé |
 | btn_undo | Deshacer |
-| stock_line | Le quedan {n} pastillas · le alcanza para {d} días |
-| stock_line_one_day | Le quedan {n} pastillas · le alcanza para 1 día |
-| stock_line_less_than_day | Le quedan {n} pastillas · no le alcanza para un día completo |
+| stock_qty_one | Le queda {n} pastilla |
+| stock_qty_other | Le quedan {n} pastillas |
+| stock_days_many | le alcanza para {d} días |
+| stock_days_one | le alcanza para 1 día |
+| stock_days_less | no le alcanza para un día completo |
 | stock_empty_line | Ya no le quedan pastillas |
 
 ## Notificaciones de toma
@@ -82,12 +90,15 @@ Reglas de estilo:
 |---|---|
 | meds_title | Mis medicamentos |
 | meds_add | Agregar medicamento |
+| med_edit_title | Editar medicamento |
 | med_name | Nombre del medicamento |
 | med_name_hint | Ej.: Gabapentina |
 | med_dose | ¿Cuánto toma cada vez? |
 | med_dose_other | Otra cantidad |
 | med_times | ¿A qué hora lo toma? |
+| med_add_first_time | Agregar hora |
 | med_add_time | Agregar otra hora |
+| med_remove_time | Quitar la hora {hora} |
 | med_stock | ¿Cuántas pastillas tiene ahora? |
 | med_warn | Avisarme cuando me queden |
 | med_urgent | Avisarme con urgencia cuando me queden |
@@ -101,6 +112,9 @@ Reglas de estilo:
 | med_delete_confirm | ¿Quiere eliminar {medicamento}? También se borrará su historial. |
 | med_error_name | Escriba el nombre del medicamento. |
 | med_error_time | Agregue al menos una hora. |
+| med_error_dose | Escriba cuánto toma cada vez, por ejemplo 1 o 1½. |
+| med_error_stock | Escriba cuántas pastillas tiene ahora, por ejemplo 10 o 10½. |
+| med_error_number | Escriba un número, por ejemplo 5. |
 | med_error_thresholds | El aviso urgente debe ser menor que el aviso normal. |
 
 ## Compra y corrección

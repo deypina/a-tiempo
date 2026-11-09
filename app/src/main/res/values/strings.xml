@@ -9,6 +9,51 @@
     <string name="today_greeting_no_name">Hola</string>
     <string name="today_subtitle">Sus tomas de hoy</string>
 
+    <string name="common_cancel">Cancelar</string>
+    <string name="common_delete">Eliminar</string>
+    <string name="common_ok">Aceptar</string>
+    <string name="common_back">Volver</string>
+    <string name="join_dot">%1$s · %2$s</string>
+    <string name="qty_pill_one">%1$s pastilla</string>
+    <string name="qty_pill_other">%1$s pastillas</string>
+
+    <string name="stock_qty_one">Le queda %1$s pastilla</string>
+    <string name="stock_qty_other">Le quedan %1$s pastillas</string>
+    <string name="stock_days_many">le alcanza para %1$d días</string>
+    <string name="stock_days_one">le alcanza para 1 día</string>
+    <string name="stock_days_less">no le alcanza para un día completo</string>
+    <string name="stock_empty_line">Ya no le quedan pastillas</string>
+
+    <string name="today_empty">Todavía no tiene medicamentos. Toque \"Agregar medicamento\" para empezar.</string>
+
+    <string name="meds_add">Agregar medicamento</string>
+    <string name="med_edit_title">Editar medicamento</string>
+    <string name="med_name">Nombre del medicamento</string>
+    <string name="med_name_hint">Ej.: Gabapentina</string>
+    <string name="med_dose">¿Cuánto toma cada vez?</string>
+    <string name="med_dose_other">Otra cantidad</string>
+    <string name="med_times">¿A qué hora lo toma?</string>
+    <string name="med_add_first_time">Agregar hora</string>
+    <string name="med_add_time">Agregar otra hora</string>
+    <string name="med_remove_time">Quitar la hora %1$s</string>
+    <string name="med_stock">¿Cuántas pastillas tiene ahora?</string>
+    <string name="med_warn">Avisarme cuando me queden</string>
+    <string name="med_urgent">Avisarme con urgencia cuando me queden</string>
+    <string name="med_note">Nota (opcional)</string>
+    <string name="med_note_hint">Ej.: con comida</string>
+    <string name="med_save">Guardar</string>
+    <string name="med_pause">Pausar recordatorios</string>
+    <string name="med_resume">Reanudar recordatorios</string>
+    <string name="med_paused">Recordatorios en pausa</string>
+    <string name="med_delete">Eliminar medicamento</string>
+    <string name="med_delete_confirm">¿Quiere eliminar %1$s? También se borrará su historial.</string>
+    <string name="med_error_name">Escriba el nombre del medicamento.</string>
+    <string name="med_error_time">Agregue al menos una hora.</string>
+    <string name="med_error_dose">Escriba cuánto toma cada vez, por ejemplo 1 o 1½.</string>
+    <string name="med_error_stock">Escriba cuántas pastillas tiene ahora, por ejemplo 10 o 10½.</string>
+    <string name="med_error_number">Escriba un número, por ejemplo 5.</string>
+    <string name="med_error_thresholds">El aviso urgente debe ser menor que el aviso normal.</string>
+
     <string name="meds_title">Mis medicamentos</string>
     <string name="settings_title">Ajustes</string>
     <string name="disclaimer">A Tiempo solo le ayuda a organizarse. No reemplaza las indicaciones de su médico.</string>

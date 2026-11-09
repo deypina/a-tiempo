@@ -26,7 +26,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.NavType
+import androidx.navigation.navArgument
 import ec.atiempo.app.R
+import ec.atiempo.app.ui.meds.EditMedicationScreen
+import ec.atiempo.app.ui.meds.EditMedicationViewModel
+import ec.atiempo.app.ui.meds.MedsScreen
 
 private enum class Tab(
     val route: String,
@@ -38,6 +43,11 @@ private enum class Tab(
     Settings("settings", R.string.tab_settings, R.drawable.ic_tab_settings),
 }
 
+private const val EDIT_MED_ROUTE =
+    "meds/edit?${EditMedicationViewModel.ARG_MEDICATION_ID}={${EditMedicationViewModel.ARG_MEDICATION_ID}}"
+
+private fun editMedRoute(id: Long?) = "meds/edit?${EditMedicationViewModel.ARG_MEDICATION_ID}=${id ?: -1L}"
+
 @Composable
 fun ATiempoRoot() {
     val navController = rememberNavController()
@@ -48,7 +58,10 @@ fun ATiempoRoot() {
         bottomBar = {
             NavigationBar {
                 Tab.entries.forEach { tab ->
-                    val selected = currentDestination?.hierarchy?.any { it.route == tab.route } == true
+                    // "meds/edit..." also belongs to the Meds tab.
+                    val selected = currentDestination?.hierarchy?.any {
+                        it.route == tab.route || it.route?.startsWith("${tab.route}/") == true
+                    } == true
                     NavigationBarItem(
                         selected = selected,
                         onClick = {
@@ -85,7 +98,21 @@ fun ATiempoRoot() {
                 )
             }
             composable(Tab.Meds.route) {
-                PlaceholderScreen(title = stringResource(R.string.meds_title))
+                MedsScreen(
+                    onAdd = { navController.navigate(editMedRoute(null)) },
+                    onOpen = { id -> navController.navigate(editMedRoute(id)) },
+                )
+            }
+            composable(
+                route = EDIT_MED_ROUTE,
+                arguments = listOf(
+                    navArgument(EditMedicationViewModel.ARG_MEDICATION_ID) {
+                        type = NavType.LongType
+                        defaultValue = -1L
+                    },
+                ),
+            ) {
+                EditMedicationScreen(onClose = { navController.popBackStack() })
             }
             composable(Tab.Settings.route) {
                 PlaceholderScreen(

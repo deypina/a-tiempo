@@ -46,6 +46,13 @@ jobs:
           name: a-tiempo-apk
           path: app/build/outputs/apk/debug/*.apk
 
+      - name: Subir esquema de la base de datos
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: room-schemas
+          path: app/schemas/
+          if-no-files-found: ignore
+
   # --- Only when publishing a version (tag v*) ---
   release:
     if: startsWith(github.ref, 'refs/tags/v')
