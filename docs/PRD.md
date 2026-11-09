@@ -48,8 +48,10 @@ Apps genéricas existen, pero son complejas, en inglés, con cuentas, anuncios o
 
 ## 6. Funcionalidades
 
+> Los textos de esta sección son de referencia. La redacción exacta que ve la usuaria está en `docs/TEXTOS_UI.md`, que manda en caso de diferencia.
+
 ### F1 — Bienvenida y nombre
-- Al abrir por primera vez pregunta: "¿Cómo le gustaría que la llamemos?" (campo libre: nombre o apodo).
+- Al abrir por primera vez pregunta: "¿Cómo le gustaría que le llamemos?" (campo libre: nombre o apodo).
 - El nombre aparece en notificaciones y en la pantalla principal. Editable en Ajustes.
 - Guía para conceder permisos (notificaciones, alarmas exactas, excluir de ahorro de batería) con explicación en lenguaje simple.
 
@@ -64,7 +66,7 @@ Por cada medicamento:
 - Se puede pausar (deja de recordar sin borrar historial) y eliminar.
 
 ### F3 — Recordatorio de toma
-- A la hora programada llega una notificación: "{Nombre}, es hora de su Gabapentina (1 pastilla)."
+- A la hora programada llega una notificación: "{Nombre}, es hora de su Gabapentina. Tome 1 pastilla."
 - Botones dentro de la notificación: **✅ Ya la tomé** y **⏰ Recordar en {X} min**.
 - **Ya la tomé:** registra la toma con fecha y hora y descuenta la cantidad del inventario.
 - **Recordar en X min:** no descuenta; vuelve a sonar en X minutos. X lo elige la usuaria en Ajustes (5, 10, 15, 30; por defecto 15).
@@ -81,9 +83,9 @@ Por cada medicamento:
 - Cada toma confirmada descuenta la cantidad por toma.
 - El inventario nunca baja de 0.
 - Cálculo "días que le alcanza" = inventario ÷ consumo diario (cantidad × número de horarios).
-- **Aviso normal** al cruzar el umbral de aviso: "{Nombre}, le quedan 5 pastillas de Gabapentina. Recuerde comprar." con botón **Ya compré**.
-- **Aviso urgente** al cruzar el umbral urgente sin compra registrada: "{Nombre}, le quedan solo 3 pastillas de Gabapentina. Compre hoy para no quedarse sin ellas." Se repite **una vez al día** (hora configurable, por defecto 10:00 a. m.) hasta que registre compra o el inventario vuelva a superar el umbral.
-- **Sin stock** (0): "Ya no le quedan pastillas de Gabapentina. Compre hoy." El recordatorio de toma sigue sonando, con aviso de que no hay stock.
+- **Aviso normal** al cruzar el umbral de aviso: "Le quedan 5 pastillas de Gabapentina. {Nombre}, recuerde comprar pronto." con botón **Ya compré**.
+- **Aviso urgente** al cruzar el umbral urgente sin compra registrada: "Solo le quedan 3 de Gabapentina. {Nombre}, compre hoy para no quedarse sin ellas." Se repite **una vez al día** (hora configurable, por defecto 10:00 a. m.) hasta que registre compra o el inventario vuelva a superar el umbral.
+- **Sin stock** (0): "Se le acabaron las pastillas de Gabapentina. {Nombre}, ya no le quedan pastillas. Compre hoy." El recordatorio de toma sigue sonando, con aviso de que no hay stock.
 
 ### F6 — Registrar compra
 - Desde la notificación ("Ya compré") o desde el medicamento.

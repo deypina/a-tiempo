@@ -30,7 +30,7 @@ Marca cada caso con ✅ o ❌ y anota qué pasó si falla. Prueba primero en el 
 | C-15 | Stock 6, umbral 5, confirmar toma | Aviso "Le quedan 5…" con botón "Ya compré" | |
 | C-16 | Seguir confirmando hasta 3 | Aviso urgente | |
 | C-17 | Día siguiente a la hora configurada, sin compra | Se repite el aviso urgente | |
-| C-18 | Llegar a 0 | Aviso "Se le acabó…"; el recordatorio de toma advierte que no quedan | |
+| C-18 | Llegar a 0 | Aviso "Se le acabaron las pastillas de…"; el recordatorio de toma advierte que no quedan | |
 | C-19 | "Ya compré" → 10 | Inventario +10, mensaje de confirmación, avisos de compra se detienen | |
 | C-20 | Corregir cantidad a 4 | Inventario queda en 4; historial muestra la corrección | |
 | C-21 | Stock 6, dosis 4 (cruza 5 y 3 a la vez) | Solo llega el aviso urgente, no los dos | |

@@ -4,13 +4,14 @@ Reglas de estilo:
 - Trato de **usted**, cálido y breve. Frases cortas.
 - Usar `{nombre}` (nombre o apodo elegido). Si está vacío, omitir el saludo sin dejar coma suelta.
 - Evitar adjetivos con género para que sirva a cualquier persona ("¿Cómo le gustaría que le llamemos?").
-- Cantidades: "1 pastilla", "2 pastillas", "½ pastilla", "1½ pastillas".
+- Cantidades: "1 pastilla", "2 pastillas", "½ pastilla", "1½ pastillas". Con 1 o ½ se usa singular también en el verbo: "Le queda 1 pastilla", "Le queda ½ pastilla" (en Android, con recursos `plurals`).
+- No poner artículos delante de `{medicamento}` ("su {medicamento}", "de {medicamento}"), porque cada nombre tiene su propio género.
 - Nada de lenguaje médico ni consejos de salud.
 
 ## Bienvenida
 | Clave | Texto |
 |---|---|
-| welcome_title | Bienvenido a A Tiempo |
+| welcome_title | Le damos la bienvenida a A Tiempo |
 | welcome_body | Le recordaremos sus pastillas a la hora que usted elija y le avisaremos antes de que se le acaben. |
 | welcome_name_question | ¿Cómo le gustaría que le llamemos? |
 | welcome_name_hint | Su nombre o apodo |
@@ -60,7 +61,7 @@ Reglas de estilo:
 | notif_low_body | {nombre}, recuerde comprar pronto. Cuando compre, avísenos. |
 | notif_urgent_title | Solo le quedan {n} de {medicamento} |
 | notif_urgent_body | {nombre}, compre hoy para no quedarse sin ellas. |
-| notif_out_title | Se le acabó la {medicamento} |
+| notif_out_title | Se le acabaron las pastillas de {medicamento} |
 | notif_out_body | {nombre}, ya no le quedan pastillas. Compre hoy. |
 | notif_action_purchased | Ya compré |
 
