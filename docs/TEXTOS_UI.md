@@ -8,6 +8,16 @@ Reglas de estilo:
 - No poner artículos delante de `{medicamento}` ("su {medicamento}", "de {medicamento}"), porque cada nombre tiene su propio género.
 - Nada de lenguaje médico ni consejos de salud.
 
+## General
+| Clave | Texto |
+|---|---|
+| app_name | A Tiempo |
+| tab_today | Hoy |
+| tab_meds | Mis medicamentos |
+| tab_settings | Ajustes |
+| common_cancel | Cancelar |
+| common_delete | Eliminar |
+
 ## Bienvenida
 | Clave | Texto |
 |---|---|
@@ -20,7 +30,7 @@ Reglas de estilo:
 | perm_notif_body | Para recordarle sus pastillas necesitamos permiso para mostrar avisos. |
 | perm_alarm_title | Avisos a la hora exacta |
 | perm_alarm_body | Así el recordatorio llega justo a la hora que usted eligió. |
-| perm_battery_title | Que el teléfono no la duerma |
+| perm_battery_title | Que el teléfono no apague los avisos |
 | perm_battery_body | Algunos teléfonos Samsung apagan las apps para ahorrar batería y los avisos no llegan. Toque el botón y elija "Sin restricciones". |
 | perm_allow | Permitir |
 | perm_later | Ahora no |
@@ -30,6 +40,7 @@ Reglas de estilo:
 | Clave | Texto |
 |---|---|
 | today_greeting | Hola, {nombre} |
+| today_greeting_no_name | Hola |
 | today_subtitle | Sus tomas de hoy |
 | today_empty | Todavía no tiene medicamentos. Toque "Agregar medicamento" para empezar. |
 | status_pending | Pendiente |
@@ -40,6 +51,7 @@ Reglas de estilo:
 | btn_undo | Deshacer |
 | stock_line | Le quedan {n} pastillas · le alcanza para {d} días |
 | stock_line_one_day | Le quedan {n} pastillas · le alcanza para 1 día |
+| stock_line_less_than_day | Le quedan {n} pastillas · no le alcanza para un día completo |
 | stock_empty_line | Ya no le quedan pastillas |
 
 ## Notificaciones de toma
@@ -47,7 +59,7 @@ Reglas de estilo:
 |---|---|
 | notif_intake_title | {nombre}, es hora de su {medicamento} |
 | notif_intake_body | Tome {cantidad}. {nota} |
-| notif_intake_body_nostock | Tome {cantidad}. Ojo: según la cuenta, ya no le quedan. |
+| notif_intake_body_nostock | Tome {cantidad}. Según la cuenta, ya no le quedan pastillas. |
 | notif_action_taken | ✅ Ya la tomé |
 | notif_action_snooze | ⏰ Recordar en {x} min |
 | notif_repeat_title | {nombre}, recuerde su {medicamento} |
@@ -84,8 +96,9 @@ Reglas de estilo:
 | med_save | Guardar |
 | med_pause | Pausar recordatorios |
 | med_resume | Reanudar recordatorios |
+| med_paused | Recordatorios en pausa |
 | med_delete | Eliminar medicamento |
-| med_delete_confirm | ¿Seguro que quiere eliminar {medicamento}? Se borrará también su historial. |
+| med_delete_confirm | ¿Quiere eliminar {medicamento}? También se borrará su historial. |
 | med_error_name | Escriba el nombre del medicamento. |
 | med_error_time | Agregue al menos una hora. |
 | med_error_thresholds | El aviso urgente debe ser menor que el aviso normal. |
@@ -96,6 +109,7 @@ Reglas de estilo:
 | purchase_title | ¿Cuántas pastillas de {medicamento} compró? |
 | purchase_other | Otra cantidad |
 | purchase_save | Guardar compra |
+| purchase_error | Escriba una cantidad mayor que 0. |
 | purchase_done | Listo. Ahora tiene {n} pastillas de {medicamento}. |
 | adjust_title | ¿Cuántas pastillas de {medicamento} tiene realmente? |
 | adjust_save | Corregir |
@@ -126,6 +140,20 @@ Reglas de estilo:
 | font_xlarge | Muy grande |
 | settings_permissions | Revisar permisos y batería |
 | settings_about | Acerca de A Tiempo |
+| about_version | Versión {v} |
+| about_repo | Ver el código en GitHub |
 | about_body | A Tiempo es una app gratuita y de código abierto. Sus datos se guardan solo en este teléfono. |
 | warn_exact_denied | Los avisos podrían llegar con unos minutos de retraso. Toque aquí para corregirlo. |
 | warn_battery | Su teléfono podría retrasar los avisos. Toque aquí para corregirlo. |
+
+## Canales de notificación
+Estos nombres aparecen en Ajustes del teléfono → Notificaciones de A Tiempo.
+
+| Clave | Texto |
+|---|---|
+| channel_intake_name | Recordatorios de toma |
+| channel_intake_desc | Le avisa a la hora de cada toma. |
+| channel_purchase_name | Avisos de compra |
+| channel_purchase_desc | Le avisa cuando le quedan pocas pastillas. |
+| channel_info_name | Tomas no confirmadas |
+| channel_info_desc | Le cuenta qué tomas no se confirmaron. |
