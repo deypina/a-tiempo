@@ -92,9 +92,9 @@ Cruces dobles (p. ej. de 6 a 2 en una sola toma de 4) disparan solo el aviso má
 ### Registrar compra
 ```
 registerPurchase(medId, qty > 0): stock += qty, movimiento PURCHASE,
-  si stock > urgent → cancelar aviso diario urgente
-  si stock > warn   → restockPending = false
+  restockPending = false y cancelar todos los avisos de compra (incluido el diario urgente)
 ```
+Registrar una compra siempre apaga los avisos, aunque el stock siga bajo (PRD F5: "hasta que registre compra"). Si luego llega a 0, vuelve a avisar.
 
 ### Corregir inventario
 `adjustStock(medId, newValue ≥ 0)`: movimiento ADJUSTMENT con delta = new − old; reevaluar umbrales (sin notificar si sube).
