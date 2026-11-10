@@ -36,6 +36,9 @@ class IntakeRepository(
 
     suspend fun getEvent(id: String): IntakeEvent? = intakeEventDao.get(id)?.toDomain()
 
+    suspend fun unansweredSince(since: Long): List<IntakeEvent> =
+        intakeEventDao.unansweredSince(since).map { it.toDomain() }
+
     /** Creates or reopens the event of the day. Null when it was already answered. */
     suspend fun openIntake(target: ReminderTarget, scheduledAt: Long): IntakeEvent? = db.withTransaction {
         val date = Instant.ofEpochMilli(scheduledAt).atZone(clock.zone).toLocalDate()

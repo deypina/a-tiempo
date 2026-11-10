@@ -73,6 +73,7 @@
     <string name="perm_allow">Permitir</string>
     <string name="perm_later">Ahora no</string>
     <string name="today_greeting">Hola, %1$s</string>
+    <string name="warn_notif_denied">Los avisos están apagados y no le llegarán los recordatorios. Toque aquí para activarlos.</string>
     <string name="warn_exact_denied">Los avisos podrían llegar con unos minutos de retraso. Toque aquí para corregirlo.</string>
     <string name="warn_battery">Su teléfono podría retrasar los avisos. Toque aquí para corregirlo.</string>
 

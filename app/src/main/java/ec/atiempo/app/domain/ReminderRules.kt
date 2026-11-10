@@ -8,6 +8,19 @@ object ReminderRules {
     const val DEFAULT_SNOOZE_MINUTES = 15
     const val DEFAULT_MAX_REPEATS = 3
 
+    /** A daily alarm missed by up to this long (phone off, force stop, late alarm) still reminds. */
+    const val CATCH_UP_WINDOW_MS = 2 * 60 * 60 * 1000L
+
+    /**
+     * The daily alarm was due at [armedAt] but never fired. Remind now if it is recent;
+     * an older one is skipped, so nobody is told to take a dose hours late.
+     */
+    fun shouldCatchUp(armedAt: Long?, now: Long): Boolean =
+        armedAt != null && armedAt <= now && now - armedAt <= CATCH_UP_WINDOW_MS
+
+    /** An alarm older than the one currently armed was already handled (or replaced): ignore it. */
+    fun isStaleAlarm(armedAt: Long?, scheduledAt: Long): Boolean = armedAt != null && armedAt > scheduledAt
+
     /** Next time [time] happens strictly after [after]: later today, otherwise tomorrow. */
     fun nextOccurrence(time: DoseTime, after: ZonedDateTime): ZonedDateTime {
         val date = after.toLocalDate()

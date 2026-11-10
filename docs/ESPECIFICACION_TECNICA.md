@@ -113,6 +113,10 @@ Registrar una compra siempre apaga los avisos, aunque el stock siga bajo (PRD F5
 - Las reglas viven en `domain/ReminderRules.kt` (puras, con pruebas). Cada cambio de una toma se hace en una transacción, así "Ya la tomé" y una repetición que llegan juntas no se pisan.
 - Si al sonar la alarma el medicamento ya no existe, está pausado o el horario cambió, la alarma se descarta y no se vuelve a programar. Al guardar, pausar o eliminar se cancelan las alarmas de los horarios quitados.
 - Abrir la app también reprograma todo (cubre "Forzar detención", que borra las alarmas sin avisar).
+- Se guarda la hora de cada alarma diaria armada. Si al reprogramar esa hora ya pasó y la alarma no sonó (teléfono apagado, forzar detención, alarma inexacta tardía), se avisa en ese momento si pasaron 2 horas o menos; si pasó más, se salta para no pedir una toma muy tarde.
+- Tras reiniciar, también se vuelven a armar las repeticiones de las tomas sin responder de las últimas 6 horas.
+- Todas las entradas de `ReminderManager` corren bajo un mismo candado (`Mutex`), así una alarma y un toque que llegan juntos se atienden uno tras otro.
+- Sin el permiso de alarmas exactas, Android puede retrasar mucho la alarma (no solo minutos). Por eso la bienvenida lo pide y Hoy muestra la advertencia hasta concederlo.
 - Aviso diario de compra urgente: una alarma por medicamento a `urgentReminderHour` mientras `stock <= urgentThreshold` y no haya compra.
 
 ### Permisos

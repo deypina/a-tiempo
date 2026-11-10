@@ -27,6 +27,13 @@ object ReminderPermissions {
     fun batteryUnrestricted(context: Context): Boolean =
         context.getSystemService(PowerManager::class.java).isIgnoringBatteryOptimizations(context.packageName)
 
+    /** Opens this app's notification settings. */
+    fun openNotificationSettings(context: Context) {
+        val intent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS)
+            .putExtra(Settings.EXTRA_APP_PACKAGE, context.packageName)
+        if (!start(context, intent)) openAppDetails(context)
+    }
+
     /** Opens "Alarmas y recordatorios" for this app. */
     fun openExactAlarmSettings(context: Context) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return

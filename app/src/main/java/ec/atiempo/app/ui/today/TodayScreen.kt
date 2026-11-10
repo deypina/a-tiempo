@@ -33,11 +33,13 @@ import ec.atiempo.app.ui.common.AppViewModelFactory
 fun TodayScreen(viewModel: TodayViewModel = viewModel(factory = AppViewModelFactory.instance)) {
     val context = LocalContext.current
     val userName by viewModel.userName.collectAsStateWithLifecycle()
+    var notificationsAllowed by remember { mutableStateOf(true) }
     var exactAllowed by remember { mutableStateOf(true) }
     var batteryOk by remember { mutableStateOf(true) }
 
     // Re-checked every time the screen comes back, e.g. after the phone's settings.
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
+        notificationsAllowed = ReminderPermissions.notificationsAllowed(context)
         exactAllowed = ReminderPermissions.exactAlarmsAllowed(context)
         batteryOk = ReminderPermissions.batteryUnrestricted(context)
     }
@@ -57,6 +59,11 @@ fun TodayScreen(viewModel: TodayViewModel = viewModel(factory = AppViewModelFact
         Text(greeting, style = MaterialTheme.typography.headlineLarge)
         Text(stringResource(R.string.today_subtitle), style = MaterialTheme.typography.bodyLarge)
 
+        if (!notificationsAllowed) {
+            WarningCard(stringResource(R.string.warn_notif_denied)) {
+                ReminderPermissions.openNotificationSettings(context)
+            }
+        }
         if (!exactAllowed) {
             WarningCard(stringResource(R.string.warn_exact_denied)) {
                 ReminderPermissions.openExactAlarmSettings(context)

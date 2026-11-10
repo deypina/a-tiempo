@@ -4,6 +4,7 @@ import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import androidx.core.content.edit
 import ec.atiempo.app.domain.IntakeEvent
 import ec.atiempo.app.domain.ReminderRules
 import ec.atiempo.app.domain.Schedule
@@ -21,6 +22,22 @@ class AlarmScheduler(
 ) {
     private val alarmManager: AlarmManager = context.getSystemService(AlarmManager::class.java)
 
+    /**
+     * When each daily alarm is due. Lets the app notice an alarm that was due but never fired
+     * (phone off, force stop, late inexact alarm). Kept out of backups: it only means something on this phone.
+     */
+    private val armed = context.getSharedPreferences(ARMED_PREFS, Context.MODE_PRIVATE)
+
+    fun armedAt(scheduleId: Long): Long? = armed.getLong(armedKey(scheduleId), 0L).takeIf { it > 0L }
+
+    /** True while a repeat (or snooze) alarm of this schedule is waiting. */
+    fun hasRepeat(scheduleId: Long): Boolean = PendingIntent.getBroadcast(
+        context,
+        repeatCode(scheduleId),
+        repeatIntent(),
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_NO_CREATE,
+    ) != null
+
     /** Arms the next daily alarm of [schedule], strictly after [after]. Replaces any previous one. */
     fun scheduleNext(schedule: Schedule, after: ZonedDateTime = ZonedDateTime.now(clock)) {
         val triggerAt = ReminderRules.nextOccurrence(schedule.time, after).toInstant().toEpochMilli()
@@ -30,6 +47,7 @@ class AlarmScheduler(
             .putExtra(EXTRA_SCHEDULE_ID, schedule.id)
             .putExtra(EXTRA_SCHEDULED_AT, triggerAt)
         setAlarm(triggerAt, broadcast(dailyCode(schedule.id), intent))
+        armed.edit { putLong(armedKey(schedule.id), triggerAt) }
     }
 
     /** Arms the repeat (or snooze) alarm of [event] in [minutes]. */
@@ -43,6 +61,7 @@ class AlarmScheduler(
     fun cancelAll(scheduleId: Long) {
         cancel(dailyCode(scheduleId), Intent(context, ReminderAlarmReceiver::class.java).setAction(ReminderAlarmReceiver.ACTION_INTAKE_ALARM))
         cancelRepeat(scheduleId)
+        armed.edit { remove(armedKey(scheduleId)) }
     }
 
     private fun repeatIntent() = Intent(context, ReminderAlarmReceiver::class.java)
@@ -90,6 +109,9 @@ class AlarmScheduler(
         fun repeatCode(scheduleId: Long): Int = REPEAT_CODE_OFFSET + scheduleId.toInt()
 
         private const val REPEAT_CODE_OFFSET = 100_000
+        private const val ARMED_PREFS = "armed_alarms"
+
+        private fun armedKey(scheduleId: Long) = "schedule_$scheduleId"
 
         /** Epoch millis to the zone-aware time used to arm the next day. */
         fun zoned(millis: Long, clock: Clock): ZonedDateTime = Instant.ofEpochMilli(millis).atZone(clock.zone)

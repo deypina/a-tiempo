@@ -67,6 +67,10 @@ interface IntakeEventDao {
     @Upsert
     suspend fun upsert(event: IntakeEventEntity)
 
+    /** Intakes still waiting for an answer, to re-arm their repeats after a reboot. */
+    @Query("SELECT * FROM intake_event WHERE status IN ('PENDING', 'SNOOZED') AND scheduledAt >= :since")
+    suspend fun unansweredSince(since: Long): List<IntakeEventEntity>
+
     @Query("DELETE FROM intake_event WHERE medicationId = :medicationId")
     suspend fun deleteForMedication(medicationId: Long)
 }

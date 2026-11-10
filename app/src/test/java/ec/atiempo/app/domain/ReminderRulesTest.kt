@@ -137,4 +137,29 @@ class ReminderRulesTest {
     fun snooze_afterMissed_doesNothing() {
         assertNull(ReminderRules.snooze(event(IntakeStatus.MISSED)))
     }
+
+    // --- Missed daily alarms ---
+
+    @Test
+    fun shouldCatchUp_recentMissedAlarm_reminds() {
+        assertTrue(ReminderRules.shouldCatchUp(armedAt = 1_000L, now = 1_000L + 10 * 60_000L))
+    }
+
+    @Test
+    fun shouldCatchUp_tooOld_skips() {
+        assertFalse(ReminderRules.shouldCatchUp(armedAt = 1_000L, now = 1_000L + ReminderRules.CATCH_UP_WINDOW_MS + 1))
+    }
+
+    @Test
+    fun shouldCatchUp_futureOrUnknown_skips() {
+        assertFalse(ReminderRules.shouldCatchUp(armedAt = 5_000L, now = 1_000L))
+        assertFalse(ReminderRules.shouldCatchUp(armedAt = null, now = 1_000L))
+    }
+
+    @Test
+    fun isStaleAlarm_olderThanArmed_isStale() {
+        assertTrue(ReminderRules.isStaleAlarm(armedAt = 2_000L, scheduledAt = 1_000L))
+        assertFalse(ReminderRules.isStaleAlarm(armedAt = 1_000L, scheduledAt = 1_000L))
+        assertFalse(ReminderRules.isStaleAlarm(armedAt = null, scheduledAt = 1_000L))
+    }
 }

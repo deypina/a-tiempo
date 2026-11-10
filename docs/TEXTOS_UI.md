@@ -162,6 +162,7 @@ Reglas de estilo:
 | about_version | Versión {v} |
 | about_repo | Ver el código en GitHub |
 | about_body | A Tiempo es una app gratuita y de código abierto. Sus datos se guardan solo en este teléfono. |
+| warn_notif_denied | Los avisos están apagados y no le llegarán los recordatorios. Toque aquí para activarlos. |
 | warn_exact_denied | Los avisos podrían llegar con unos minutos de retraso. Toque aquí para corregirlo. |
 | warn_battery | Su teléfono podría retrasar los avisos. Toque aquí para corregirlo. |
 
