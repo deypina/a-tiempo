@@ -1,5 +1,6 @@
 package ec.atiempo.app.ui.common
 
+import android.content.Context
 import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
@@ -18,6 +19,19 @@ private val appLocale: Locale = Locale.forLanguageTag("es-EC")
 fun formatTime(time: DoseTime): String {
     val pattern = if (DateFormat.is24HourFormat(LocalContext.current)) "HH:mm" else "h:mm a"
     return LocalTime.of(time.hour, time.minute).format(DateTimeFormatter.ofPattern(pattern, appLocale))
+}
+
+/** Same as [formatTime] for code outside Compose (notifications). */
+fun formatTime(context: Context, time: LocalTime): String {
+    val pattern = if (DateFormat.is24HourFormat(context)) "HH:mm" else "h:mm a"
+    return time.format(DateTimeFormatter.ofPattern(pattern, appLocale))
+}
+
+/** Same as [pillQuantity] for code outside Compose (notifications). */
+fun pillQuantity(context: Context, value: Double): String {
+    val text = Quantity.format(value)
+    val res = if (Quantity.isSingular(value)) R.string.qty_pill_one else R.string.qty_pill_other
+    return context.getString(res, text)
 }
 
 /** "½ pastilla", "1 pastilla", "1½ pastillas". */

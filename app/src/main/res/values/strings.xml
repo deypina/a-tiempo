@@ -57,4 +57,44 @@
     <string name="meds_title">Mis medicamentos</string>
     <string name="settings_title">Ajustes</string>
     <string name="disclaimer">A Tiempo solo le ayuda a organizarse. No reemplaza las indicaciones de su médico.</string>
+    <!-- Welcome -->
+    <string name="welcome_title">Le damos la bienvenida a A Tiempo</string>
+    <string name="welcome_body">Le recordaremos sus pastillas a la hora que usted elija y le avisaremos antes de que se le acaben.</string>
+    <string name="welcome_name_question">¿Cómo le gustaría que le llamemos?</string>
+    <string name="welcome_name_hint">Su nombre o apodo</string>
+    <string name="welcome_continue">Continuar</string>
+    <string name="perm_notif_title">Permitir avisos</string>
+    <string name="perm_notif_body">Para recordarle sus pastillas necesitamos permiso para mostrar avisos.</string>
+    <string name="perm_alarm_title">Avisos a la hora exacta</string>
+    <string name="perm_alarm_body">Así el recordatorio llega justo a la hora que usted eligió.</string>
+    <string name="perm_battery_title">Que el teléfono no apague los avisos</string>
+    <string name="perm_battery_body">Algunos teléfonos Samsung apagan las apps para ahorrar batería y los avisos no llegan. Toque el botón y elija \"Sin restricciones\".</string>
+    <string name="perm_battery_steps">Si los avisos siguen sin llegar: abra Ajustes del teléfono → Aplicaciones → A Tiempo → Batería y elija \"Sin restricciones\". Revise también que A Tiempo no esté en \"Aplicaciones en suspensión profunda\" (Ajustes → Batería → Límites de uso en segundo plano).</string>
+    <string name="perm_allow">Permitir</string>
+    <string name="perm_later">Ahora no</string>
+    <string name="today_greeting">Hola, %1$s</string>
+    <string name="warn_exact_denied">Los avisos podrían llegar con unos minutos de retraso. Toque aquí para corregirlo.</string>
+    <string name="warn_battery">Su teléfono podría retrasar los avisos. Toque aquí para corregirlo.</string>
+
+    <!-- Intake notifications -->
+    <string name="notif_intake_title">%1$s, es hora de su %2$s</string>
+    <string name="notif_intake_title_no_name">Es hora de su %1$s</string>
+    <string name="notif_intake_body">Tome %1$s. %2$s</string>
+    <string name="notif_intake_body_nostock">Tome %1$s. Según la cuenta, ya no le quedan pastillas.</string>
+    <string name="notif_action_taken">✅ Ya la tomé</string>
+    <string name="notif_action_snooze">⏰ Recordar en %1$d min</string>
+    <string name="notif_repeat_title">%1$s, recuerde su %2$s</string>
+    <string name="notif_repeat_title_no_name">Recuerde su %1$s</string>
+    <string name="notif_missed">No confirmó su toma de %1$s de las %2$s.</string>
+    <string name="notif_taken_toast">Listo. Le quedan %1$s pastillas de %2$s.</string>
+    <string name="notif_taken_toast_one">Listo. Le queda %1$s pastilla de %2$s.</string>
+    <string name="notif_taken_toast_empty">Listo. Ya no le quedan pastillas de %1$s.</string>
+
+    <!-- Notification channels (phone Settings → Notifications) -->
+    <string name="channel_intake_name">Recordatorios de toma</string>
+    <string name="channel_intake_desc">Le avisa a la hora de cada toma.</string>
+    <string name="channel_purchase_name">Avisos de compra</string>
+    <string name="channel_purchase_desc">Le avisa cuando le quedan pocas pastillas.</string>
+    <string name="channel_info_name">Tomas no confirmadas</string>
+    <string name="channel_info_desc">Le cuenta qué tomas no se confirmaron.</string>
 </resources>

@@ -39,6 +39,16 @@ interface ScheduleDao {
     @Query("SELECT * FROM schedule WHERE medicationId = :medicationId")
     suspend fun forMedication(medicationId: Long): List<ScheduleEntity>
 
+    @Query("SELECT * FROM schedule WHERE id = :id")
+    suspend fun get(id: Long): ScheduleEntity?
+
+    /** Schedules of medications that are not paused: the ones that need an alarm. */
+    @Query(
+        "SELECT schedule.* FROM schedule INNER JOIN medication ON medication.id = schedule.medicationId " +
+            "WHERE medication.active = 1",
+    )
+    suspend fun activeSchedules(): List<ScheduleEntity>
+
     @Insert
     suspend fun insertAll(schedules: List<ScheduleEntity>)
 

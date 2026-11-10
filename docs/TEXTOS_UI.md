@@ -38,6 +38,7 @@ Reglas de estilo:
 | perm_alarm_body | Así el recordatorio llega justo a la hora que usted eligió. |
 | perm_battery_title | Que el teléfono no apague los avisos |
 | perm_battery_body | Algunos teléfonos Samsung apagan las apps para ahorrar batería y los avisos no llegan. Toque el botón y elija "Sin restricciones". |
+| perm_battery_steps | Si los avisos siguen sin llegar: abra Ajustes del teléfono → Aplicaciones → A Tiempo → Batería y elija "Sin restricciones". Revise también que A Tiempo no esté en "Aplicaciones en suspensión profunda" (Ajustes → Batería → Límites de uso en segundo plano). |
 | perm_allow | Permitir |
 | perm_later | Ahora no |
 | disclaimer | A Tiempo solo le ayuda a organizarse. No reemplaza las indicaciones de su médico. |
@@ -66,13 +67,17 @@ Reglas de estilo:
 | Clave | Texto |
 |---|---|
 | notif_intake_title | {nombre}, es hora de su {medicamento} |
+| notif_intake_title_no_name | Es hora de su {medicamento} |
 | notif_intake_body | Tome {cantidad}. {nota} |
 | notif_intake_body_nostock | Tome {cantidad}. Según la cuenta, ya no le quedan pastillas. |
 | notif_action_taken | ✅ Ya la tomé |
 | notif_action_snooze | ⏰ Recordar en {x} min |
 | notif_repeat_title | {nombre}, recuerde su {medicamento} |
+| notif_repeat_title_no_name | Recuerde su {medicamento} |
 | notif_missed | No confirmó su toma de {medicamento} de las {hora}. |
 | notif_taken_toast | Listo. Le quedan {n} pastillas de {medicamento}. |
+| notif_taken_toast_one | Listo. Le queda {n} pastilla de {medicamento}. |
+| notif_taken_toast_empty | Listo. Ya no le quedan pastillas de {medicamento}. |
 
 ## Avisos de compra
 | Clave | Texto |

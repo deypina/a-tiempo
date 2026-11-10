@@ -5,6 +5,7 @@ import ec.atiempo.app.domain.InventoryRules
 import ec.atiempo.app.domain.Medication
 import ec.atiempo.app.domain.MedicationInput
 import ec.atiempo.app.domain.MedicationWithSchedules
+import ec.atiempo.app.domain.Schedule
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.time.Clock
@@ -62,6 +63,11 @@ class MedicationRepository(
         replaceSchedules(medicationId, input)
         medicationId
     }
+
+    suspend fun scheduleIds(medicationId: Long): List<Long> =
+        scheduleDao.forMedication(medicationId).map { it.id }
+
+    suspend fun activeSchedules(): List<Schedule> = scheduleDao.activeSchedules().map { it.toDomain() }
 
     suspend fun setActive(id: Long, active: Boolean) = medicationDao.setActive(id, active)
 

@@ -32,6 +32,7 @@ import ec.atiempo.app.R
 import ec.atiempo.app.ui.meds.EditMedicationScreen
 import ec.atiempo.app.ui.meds.EditMedicationViewModel
 import ec.atiempo.app.ui.meds.MedsScreen
+import ec.atiempo.app.ui.today.TodayScreen
 
 private enum class Tab(
     val route: String,
@@ -92,10 +93,7 @@ fun ATiempoRoot() {
             modifier = Modifier.padding(innerPadding),
         ) {
             composable(Tab.Today.route) {
-                PlaceholderScreen(
-                    title = stringResource(R.string.today_greeting_no_name),
-                    body = stringResource(R.string.today_subtitle),
-                )
+                TodayScreen()
             }
             composable(Tab.Meds.route) {
                 MedsScreen(

@@ -108,7 +108,11 @@ Registrar una compra siempre apaga los avisos, aunque el stock siga bajo (PRD F5
 - `AlarmScheduler.scheduleNext(schedule)`: calcula la próxima ocurrencia (hoy si no ha pasado, si no mañana) y usa `setExactAndAllowWhileIdle(RTC_WAKEUP, …)`.
 - `requestCode` estable por schedule (`scheduleId.toInt()`); posponer usa `requestCode` distinto (`100000 + scheduleId`).
 - Al dispararse la alarma: crear/obtener `IntakeEvent` del día (estado PENDING), mostrar notificación, programar la del día siguiente.
-- Repeticiones: si no hay respuesta, `ReminderRepeat` cada `snoozeMinutes` hasta `maxRepeats`; al agotarse → status MISSED y notificación silenciosa "No confirmó su toma de…".
+- Repeticiones: si no hay respuesta, la alarma de repetición suena cada `snoozeMinutes` hasta `maxRepeats` veces (`snoozeCount` cuenta las repeticiones sin respuesta). Un intervalo después de la última → status MISSED y notificación silenciosa "No confirmó su toma de…". Con 15 min y 3 repeticiones: 9:00, 9:15, 9:30, 9:45 y a las 10:00 queda "No confirmada".
+- "Recordar en X min" deja la toma en SNOOZED y reinicia el conteo: la persona respondió. Al sonar de nuevo vuelve a PENDING con sus propias repeticiones.
+- Las reglas viven en `domain/ReminderRules.kt` (puras, con pruebas). Cada cambio de una toma se hace en una transacción, así "Ya la tomé" y una repetición que llegan juntas no se pisan.
+- Si al sonar la alarma el medicamento ya no existe, está pausado o el horario cambió, la alarma se descarta y no se vuelve a programar. Al guardar, pausar o eliminar se cancelan las alarmas de los horarios quitados.
+- Abrir la app también reprograma todo (cubre "Forzar detención", que borra las alarmas sin avisar).
 - Aviso diario de compra urgente: una alarma por medicamento a `urgentReminderHour` mientras `stock <= urgentThreshold` y no haya compra.
 
 ### Permisos

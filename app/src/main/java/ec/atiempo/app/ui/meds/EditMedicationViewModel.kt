@@ -11,6 +11,7 @@ import ec.atiempo.app.domain.MedicationForm
 import ec.atiempo.app.domain.MedicationValidator
 import ec.atiempo.app.domain.Quantity
 import ec.atiempo.app.domain.ValidationResult
+import ec.atiempo.app.reminders.ReminderManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -41,6 +42,7 @@ data class EditMedicationUiState(
 
 class EditMedicationViewModel(
     private val repository: MedicationRepository,
+    private val reminders: ReminderManager,
     savedStateHandle: SavedStateHandle,
 ) : ViewModel() {
 
@@ -115,7 +117,9 @@ class EditMedicationViewModel(
             is ValidationResult.Valid -> {
                 _state.update { it.copy(errors = emptySet(), saving = true) }
                 viewModelScope.launch {
-                    repository.saveMedication(medicationId, result.input)
+                    val before = medicationId?.let { repository.scheduleIds(it) }.orEmpty()
+                    val savedId = repository.saveMedication(medicationId, result.input)
+                    reminders.refreshMedication(savedId, before)
                     _state.update { it.copy(saving = false, finished = true) }
                 }
             }
@@ -126,13 +130,18 @@ class EditMedicationViewModel(
         val id = medicationId ?: return
         val newActive = !_state.value.active
         _state.update { it.copy(active = newActive) }
-        viewModelScope.launch { repository.setActive(id, newActive) }
+        viewModelScope.launch {
+            repository.setActive(id, newActive)
+            reminders.refreshMedication(id, repository.scheduleIds(id))
+        }
     }
 
     fun delete() {
         val id = medicationId ?: return
         viewModelScope.launch {
+            val before = repository.scheduleIds(id)
             repository.deleteMedication(id)
+            reminders.refreshMedication(id, before)
             _state.update { it.copy(finished = true) }
         }
     }

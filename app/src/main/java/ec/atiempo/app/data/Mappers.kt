@@ -1,6 +1,7 @@
 package ec.atiempo.app.data
 
 import ec.atiempo.app.domain.DoseTime
+import ec.atiempo.app.domain.IntakeEvent
 import ec.atiempo.app.domain.Medication
 import ec.atiempo.app.domain.MedicationWithSchedules
 import ec.atiempo.app.domain.Schedule
@@ -46,4 +47,26 @@ fun StockMovement.toEntity() = StockMovementEntity(
     delta = delta,
     resultingStock = resultingStock,
     createdAt = createdAt,
+)
+
+fun IntakeEventEntity.toDomain() = IntakeEvent(
+    id = id,
+    medicationId = medicationId,
+    scheduleId = scheduleId,
+    scheduledAt = scheduledAt,
+    status = status,
+    snoozeCount = snoozeCount,
+    takenAt = takenAt,
+    quantity = quantity,
+)
+
+fun IntakeEvent.toEntity() = IntakeEventEntity(
+    id = id,
+    medicationId = medicationId,
+    scheduleId = scheduleId,
+    scheduledAt = scheduledAt,
+    status = status,
+    snoozeCount = snoozeCount,
+    takenAt = takenAt,
+    quantity = quantity,
 )
