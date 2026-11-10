@@ -91,6 +91,32 @@
     <string name="notif_taken_toast_one">Listo. Le queda %1$s pastilla de %2$s.</string>
     <string name="notif_taken_toast_empty">Listo. Ya no le quedan pastillas de %1$s.</string>
 
+    <!-- Purchase notifications -->
+    <string name="notif_low_title">Le quedan %1$s pastillas de %2$s</string>
+    <string name="notif_low_title_one">Le queda %1$s pastilla de %2$s</string>
+    <string name="notif_low_body">%1$s, recuerde comprar pronto. Cuando compre, avísenos.</string>
+    <string name="notif_low_body_no_name">Recuerde comprar pronto. Cuando compre, avísenos.</string>
+    <string name="notif_urgent_title">Solo le quedan %1$s de %2$s</string>
+    <string name="notif_urgent_title_one">Solo le queda %1$s de %2$s</string>
+    <string name="notif_urgent_body">%1$s, compre hoy para no quedarse sin ellas.</string>
+    <string name="notif_urgent_body_no_name">Compre hoy para no quedarse sin ellas.</string>
+    <string name="notif_out_title">Se le acabaron las pastillas de %1$s</string>
+    <string name="notif_out_body">%1$s, ya no le quedan pastillas. Compre hoy.</string>
+    <string name="notif_out_body_no_name">Ya no le quedan pastillas. Compre hoy.</string>
+    <string name="notif_action_purchased">Ya compré</string>
+
+    <!-- Purchase and correction -->
+    <string name="purchase_title">¿Cuántas pastillas de %1$s compró?</string>
+    <string name="purchase_other">Otra cantidad</string>
+    <string name="purchase_save">Guardar compra</string>
+    <string name="purchase_error">Escriba una cantidad mayor que 0.</string>
+    <string name="purchase_done">Listo. Ahora tiene %1$s pastillas de %2$s.</string>
+    <string name="purchase_done_one">Listo. Ahora tiene %1$s pastilla de %2$s.</string>
+    <string name="purchase_btn">Registrar compra</string>
+    <string name="adjust_title">¿Cuántas pastillas de %1$s tiene realmente?</string>
+    <string name="adjust_save">Corregir</string>
+    <string name="adjust_btn">Corregir cantidad</string>
+
     <!-- Notification channels (phone Settings → Notifications) -->
     <string name="channel_intake_name">Recordatorios de toma</string>
     <string name="channel_intake_desc">Le avisa a la hora de cada toma.</string>

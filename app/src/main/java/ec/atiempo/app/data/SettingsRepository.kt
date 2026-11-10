@@ -9,6 +9,8 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import ec.atiempo.app.domain.DoseTime
+import ec.atiempo.app.domain.PurchaseRules
 import ec.atiempo.app.domain.ReminderRules
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -21,6 +23,8 @@ data class Settings(
     val userName: String = "",
     val snoozeMinutes: Int = ReminderRules.DEFAULT_SNOOZE_MINUTES,
     val maxRepeats: Int = ReminderRules.DEFAULT_MAX_REPEATS,
+    /** Time of the daily urgent purchase reminder (urgentReminderHour in the spec). Editable in Ajustes (phase 5). */
+    val urgentReminderTime: DoseTime = PurchaseRules.DEFAULT_URGENT_REMINDER_TIME,
     val onboardingDone: Boolean = false,
 )
 
@@ -36,6 +40,7 @@ class SettingsRepository(context: Context) {
                 userName = prefs[USER_NAME].orEmpty(),
                 snoozeMinutes = prefs[SNOOZE_MINUTES] ?: ReminderRules.DEFAULT_SNOOZE_MINUTES,
                 maxRepeats = prefs[MAX_REPEATS] ?: ReminderRules.DEFAULT_MAX_REPEATS,
+                urgentReminderTime = urgentTime(prefs[URGENT_HOUR], prefs[URGENT_MINUTE]),
                 onboardingDone = prefs[ONBOARDING_DONE] ?: false,
             )
         }
@@ -53,9 +58,18 @@ class SettingsRepository(context: Context) {
     companion object {
         const val MAX_NAME_LENGTH = 40
 
+        /** Falls back to 10:00 when nothing (or something out of range) is stored. */
+        private fun urgentTime(hour: Int?, minute: Int?): DoseTime {
+            val default = PurchaseRules.DEFAULT_URGENT_REMINDER_TIME
+            val h = hour?.takeIf { it in 0..23 } ?: return default
+            return DoseTime(h, minute?.takeIf { it in 0..59 } ?: 0)
+        }
+
         private val USER_NAME = stringPreferencesKey("userName")
         private val SNOOZE_MINUTES = intPreferencesKey("snoozeMinutes")
         private val MAX_REPEATS = intPreferencesKey("maxRepeats")
+        private val URGENT_HOUR = intPreferencesKey("urgentReminderHour")
+        private val URGENT_MINUTE = intPreferencesKey("urgentReminderMinute")
         private val ONBOARDING_DONE = booleanPreferencesKey("onboardingDone")
     }
 }

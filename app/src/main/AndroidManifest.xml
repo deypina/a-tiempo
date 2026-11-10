@@ -39,6 +39,14 @@
             </intent-filter>
         </activity>
 
+        <!-- "Ya compré" from a purchase notification. Not exported: only this app's PendingIntent opens it. -->
+        <activity
+            android:name=".ui.purchase.PurchaseActivity"
+            android:excludeFromRecents="true"
+            android:exported="false"
+            android:taskAffinity=""
+            android:theme="@style/Theme.ATiempo" />
+
         <!-- Only reachable through this app's own PendingIntents. -->
         <receiver
             android:name=".reminders.ReminderAlarmReceiver"

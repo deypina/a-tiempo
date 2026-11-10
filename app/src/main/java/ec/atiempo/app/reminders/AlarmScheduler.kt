@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import androidx.core.content.edit
+import ec.atiempo.app.domain.DoseTime
 import ec.atiempo.app.domain.IntakeEvent
 import ec.atiempo.app.domain.ReminderRules
 import ec.atiempo.app.domain.Schedule
@@ -15,6 +16,7 @@ import java.time.ZonedDateTime
 /**
  * Exact alarms with AlarmManager (docs/ESPECIFICACION_TECNICA.md §4).
  * Each schedule owns two alarm slots: the daily one and the repeat/snooze one.
+ * Each medication owns one more: the daily urgent purchase reminder.
  */
 class AlarmScheduler(
     private val context: Context,
@@ -64,6 +66,32 @@ class AlarmScheduler(
         armed.edit { remove(armedKey(scheduleId)) }
     }
 
+    /** When the daily purchase reminder of [medicationId] is due, if armed. */
+    fun purchaseArmedAt(medicationId: Long): Long? =
+        armed.getLong(purchaseKey(medicationId), 0L).takeIf { it > 0L }
+
+    /** Arms the daily urgent purchase reminder at [time], strictly after [after]. Replaces any previous one. */
+    fun schedulePurchase(medicationId: Long, time: DoseTime, after: ZonedDateTime = ZonedDateTime.now(clock)) {
+        schedulePurchaseAt(medicationId, ReminderRules.nextOccurrence(time, after).toInstant().toEpochMilli())
+    }
+
+    /** Arms the daily purchase reminder at an exact moment. */
+    fun schedulePurchaseAt(medicationId: Long, triggerAt: Long) {
+        val intent = purchaseIntent()
+            .putExtra(EXTRA_MEDICATION_ID, medicationId)
+            .putExtra(EXTRA_SCHEDULED_AT, triggerAt)
+        setAlarm(triggerAt, broadcast(purchaseCode(medicationId), intent))
+        armed.edit { putLong(purchaseKey(medicationId), triggerAt) }
+    }
+
+    fun cancelPurchase(medicationId: Long) {
+        cancel(purchaseCode(medicationId), purchaseIntent())
+        armed.edit { remove(purchaseKey(medicationId)) }
+    }
+
+    private fun purchaseIntent() = Intent(context, ReminderAlarmReceiver::class.java)
+        .setAction(ReminderAlarmReceiver.ACTION_PURCHASE_ALARM)
+
     private fun repeatIntent() = Intent(context, ReminderAlarmReceiver::class.java)
         .setAction(ReminderAlarmReceiver.ACTION_REPEAT_ALARM)
 
@@ -107,11 +135,14 @@ class AlarmScheduler(
         /** Stable request code per schedule; the repeat slot uses a separate range. */
         fun dailyCode(scheduleId: Long): Int = scheduleId.toInt()
         fun repeatCode(scheduleId: Long): Int = REPEAT_CODE_OFFSET + scheduleId.toInt()
+        fun purchaseCode(medicationId: Long): Int = PURCHASE_CODE_OFFSET + medicationId.toInt()
 
         private const val REPEAT_CODE_OFFSET = 100_000
+        private const val PURCHASE_CODE_OFFSET = 300_000
         private const val ARMED_PREFS = "armed_alarms"
 
         private fun armedKey(scheduleId: Long) = "schedule_$scheduleId"
+        private fun purchaseKey(medicationId: Long) = "purchase_$medicationId"
 
         /** Epoch millis to the zone-aware time used to arm the next day. */
         fun zoned(millis: Long, clock: Clock): ZonedDateTime = Instant.ofEpochMilli(millis).atZone(clock.zone)

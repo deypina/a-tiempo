@@ -34,6 +34,8 @@ data class EditMedicationUiState(
     val urgent: String = Quantity.format(Medication.DEFAULT_URGENT_THRESHOLD),
     val note: String = "",
     val active: Boolean = true,
+    /** Count shown when the screen opened; if it is not edited, the database count is kept. */
+    val loadedStock: String = "",
     val errors: Set<MedicationError> = emptySet(),
     val saving: Boolean = false,
     /** True once saved or deleted: the screen closes. */
@@ -73,6 +75,7 @@ class EditMedicationViewModel(
                 doseOther = if (isShortcut) "" else Quantity.format(med.dosePerIntake),
                 times = item.schedules.map { s -> s.time },
                 stock = Quantity.format(med.stock),
+                loadedStock = Quantity.format(med.stock),
                 warn = Quantity.format(med.warnThreshold),
                 urgent = Quantity.format(med.urgentThreshold),
                 note = med.note.orEmpty(),
@@ -118,8 +121,10 @@ class EditMedicationViewModel(
                 _state.update { it.copy(errors = emptySet(), saving = true) }
                 viewModelScope.launch {
                     val before = medicationId?.let { repository.scheduleIds(it) }.orEmpty()
-                    val savedId = repository.saveMedication(medicationId, result.input)
-                    reminders.refreshMedication(savedId, before)
+                    // A purchase registered while this screen was open must not be undone.
+                    val keepStock = !current.isNew && current.stock == current.loadedStock
+                    val saved = repository.saveMedication(medicationId, result.input, keepStock)
+                    reminders.refreshMedication(saved.id, before, saved.alert)
                     _state.update { it.copy(saving = false, finished = true) }
                 }
             }

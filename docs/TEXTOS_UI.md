@@ -83,11 +83,16 @@ Reglas de estilo:
 | Clave | Texto |
 |---|---|
 | notif_low_title | Le quedan {n} pastillas de {medicamento} |
+| notif_low_title_one | Le queda {n} pastilla de {medicamento} |
 | notif_low_body | {nombre}, recuerde comprar pronto. Cuando compre, avísenos. |
+| notif_low_body_no_name | Recuerde comprar pronto. Cuando compre, avísenos. |
 | notif_urgent_title | Solo le quedan {n} de {medicamento} |
+| notif_urgent_title_one | Solo le queda {n} de {medicamento} |
 | notif_urgent_body | {nombre}, compre hoy para no quedarse sin ellas. |
+| notif_urgent_body_no_name | Compre hoy para no quedarse sin ellas. |
 | notif_out_title | Se le acabaron las pastillas de {medicamento} |
 | notif_out_body | {nombre}, ya no le quedan pastillas. Compre hoy. |
+| notif_out_body_no_name | Ya no le quedan pastillas. Compre hoy. |
 | notif_action_purchased | Ya compré |
 
 ## Medicamentos
@@ -130,6 +135,8 @@ Reglas de estilo:
 | purchase_save | Guardar compra |
 | purchase_error | Escriba una cantidad mayor que 0. |
 | purchase_done | Listo. Ahora tiene {n} pastillas de {medicamento}. |
+| purchase_done_one | Listo. Ahora tiene {n} pastilla de {medicamento}. |
+| purchase_btn | Registrar compra |
 | adjust_title | ¿Cuántas pastillas de {medicamento} tiene realmente? |
 | adjust_save | Corregir |
 | adjust_btn | Corregir cantidad |

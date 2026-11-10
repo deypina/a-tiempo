@@ -12,6 +12,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -29,10 +30,16 @@ import ec.atiempo.app.ui.common.joinWithDots
 import ec.atiempo.app.ui.common.pillQuantity
 import ec.atiempo.app.ui.common.stockLine
 
+private val CardButtonModifier = Modifier
+    .fillMaxWidth()
+    .heightIn(min = 56.dp)
+
 @Composable
 fun MedsScreen(
     onAdd: () -> Unit,
     onOpen: (Long) -> Unit,
+    onPurchase: (Long) -> Unit,
+    onAdjust: (Long) -> Unit,
     viewModel: MedsViewModel = viewModel(factory = AppViewModelFactory.instance),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -63,14 +70,24 @@ fun MedsScreen(
                 }
             }
             items(current.medications, key = { it.medication.id }) { item ->
-                MedicationCard(item = item, onClick = { onOpen(item.medication.id) })
+                MedicationCard(
+                    item = item,
+                    onClick = { onOpen(item.medication.id) },
+                    onPurchase = { onPurchase(item.medication.id) },
+                    onAdjust = { onAdjust(item.medication.id) },
+                )
             }
         }
     }
 }
 
 @Composable
-private fun MedicationCard(item: MedicationWithSchedules, onClick: () -> Unit) {
+private fun MedicationCard(
+    item: MedicationWithSchedules,
+    onClick: () -> Unit,
+    onPurchase: () -> Unit,
+    onAdjust: () -> Unit,
+) {
     val med = item.medication
     Card(
         onClick = onClick,
@@ -97,6 +114,12 @@ private fun MedicationCard(item: MedicationWithSchedules, onClick: () -> Unit) {
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+            }
+            Button(onClick = onPurchase, modifier = CardButtonModifier) {
+                Text(stringResource(R.string.purchase_btn))
+            }
+            OutlinedButton(onClick = onAdjust, modifier = CardButtonModifier) {
+                Text(stringResource(R.string.adjust_btn))
             }
         }
     }

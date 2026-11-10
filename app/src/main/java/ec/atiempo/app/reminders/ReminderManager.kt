@@ -2,13 +2,18 @@ package ec.atiempo.app.reminders
 
 import ec.atiempo.app.data.IntakeRepository
 import ec.atiempo.app.data.MedicationRepository
+import ec.atiempo.app.data.Settings
 import ec.atiempo.app.data.SettingsRepository
+import ec.atiempo.app.domain.Medication
+import ec.atiempo.app.domain.PurchaseRules
 import ec.atiempo.app.domain.ReminderRules
 import ec.atiempo.app.domain.ReminderRules.RepeatDecision
 import ec.atiempo.app.domain.Schedule
+import ec.atiempo.app.domain.StockAlert
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.time.Clock
+import java.time.LocalTime
 import java.time.ZonedDateTime
 
 /**
@@ -32,13 +37,20 @@ class ReminderManager(
     suspend fun rescheduleAll() = lock.withLock {
         medications.activeSchedules().forEach { arm(it) }
         restoreRepeats()
+        val prefs = settings.current()
+        medications.allMedications().forEach { syncPurchase(it, prefs) }
     }
 
     /**
      * After saving, pausing or deleting a medication. [previousScheduleIds] are the schedules
-     * it had before the change, so alarms of removed times are cancelled.
+     * it had before the change, so alarms of removed times are cancelled. [alert] comes from a
+     * corrected count in the edit screen that crossed a purchase threshold going down.
      */
-    suspend fun refreshMedication(medicationId: Long, previousScheduleIds: Collection<Long>) = lock.withLock {
+    suspend fun refreshMedication(
+        medicationId: Long,
+        previousScheduleIds: Collection<Long>,
+        alert: StockAlert? = null,
+    ) = lock.withLock {
         val item = medications.getMedication(medicationId)
         val current = if (item?.medication?.active == true) item.schedules else emptyList()
         val keep = current.map { it.id }.toSet()
@@ -48,6 +60,16 @@ class ReminderManager(
             notifier.cancelAllFor(scheduleId)
         }
         current.forEach { arm(it) }
+
+        val medication = item?.medication
+        if (medication == null) {
+            scheduler.cancelPurchase(medicationId)
+            notifier.cancelPurchase(medicationId)
+        } else {
+            val prefs = settings.current()
+            if (alert != null && medication.active) notifier.showPurchase(medication, alert, prefs.userName)
+            syncPurchase(medication, prefs, justAlerted = alert != null)
+        }
     }
 
     suspend fun onDailyAlarm(medicationId: Long, scheduleId: Long, scheduledAt: Long) = lock.withLock {
@@ -85,7 +107,37 @@ class ReminderManager(
         val result = intakes.confirmIntake(eventId)
         scheduler.cancelRepeat(event.scheduleId)
         notifier.cancelIntake(event.scheduleId)
-        result?.let { notifier.showTakenToast(it.medication) }
+        result ?: return@withLock
+        notifier.showTakenToast(result.medication)
+        val prefs = settings.current()
+        // Crossing two thresholds at once (6 to 2) returns only the most serious alert (C-21).
+        result.alert?.let { notifier.showPurchase(result.medication, it, prefs.userName) }
+        syncPurchase(result.medication, prefs, justAlerted = result.alert != null)
+    }
+
+    /** Daily urgent purchase reminder (C-17). */
+    suspend fun onPurchaseAlarm(medicationId: Long, scheduledAt: Long) = lock.withLock {
+        if (ReminderRules.isStaleAlarm(scheduler.purchaseArmedAt(medicationId), scheduledAt)) return@withLock
+        handlePurchaseAlarm(medicationId, scheduledAt)
+    }
+
+    /** "Ya compré": adds [quantity] and turns purchase reminders off. Null if the medication is gone. */
+    suspend fun onPurchase(medicationId: Long, quantity: Double): Medication? = lock.withLock {
+        val result = medications.registerPurchase(medicationId, quantity) ?: return@withLock null
+        scheduler.cancelPurchase(medicationId)
+        notifier.cancelPurchase(medicationId)
+        notifier.showPurchaseDoneToast(result.medication)
+        result.medication
+    }
+
+    /** "Corregir cantidad". Alerts only when the count goes down across a threshold. */
+    suspend fun onAdjust(medicationId: Long, newValue: Double) = lock.withLock {
+        val result = medications.adjustStock(medicationId, newValue) ?: return@withLock
+        val prefs = settings.current()
+        if (result.alert != null && result.medication.active) {
+            notifier.showPurchase(result.medication, result.alert, prefs.userName)
+        }
+        syncPurchase(result.medication, prefs, justAlerted = result.alert != null)
     }
 
     /** "Recordar en X min". Never changes the stock. */
@@ -123,6 +175,51 @@ class ReminderManager(
         val prefs = settings.current()
         notifier.showIntake(target.medication, event, prefs.userName, prefs.snoozeMinutes, isRepeat = false)
         scheduler.scheduleRepeat(event, prefs.snoozeMinutes)
+    }
+
+    private suspend fun handlePurchaseAlarm(medicationId: Long, scheduledAt: Long) {
+        val medication = medications.getMedication(medicationId)?.medication
+        if (medication == null || !PurchaseRules.needsDailyReminder(medication)) {
+            scheduler.cancelPurchase(medicationId)
+            return
+        }
+        val prefs = settings.current()
+        val now = ZonedDateTime.now(clock)
+        val scheduled = AlarmScheduler.zoned(scheduledAt, clock)
+        scheduler.schedulePurchase(medicationId, prefs.urgentReminderTime, if (scheduled.isAfter(now)) scheduled else now)
+        notifier.showPurchase(medication, PurchaseRules.dailyAlert(medication), prefs.userName)
+    }
+
+    /**
+     * Keeps purchase alerts in line with the stock: removes a stale alert and arms or cancels the
+     * daily urgent reminder. When an alert was [justAlerted], the first repeat is tomorrow.
+     */
+    private suspend fun syncPurchase(medication: Medication, prefs: Settings, justAlerted: Boolean = false) {
+        val id = medication.id
+        if (!medication.active || !PurchaseRules.keepAlertVisible(medication)) notifier.cancelPurchase(id)
+        if (!PurchaseRules.needsDailyReminder(medication)) {
+            scheduler.cancelPurchase(id)
+            return
+        }
+        val nowMillis = clock.millis()
+        val armedAt = scheduler.purchaseArmedAt(id)
+        val time = prefs.urgentReminderTime
+        when {
+            justAlerted -> scheduler.schedulePurchase(id, time, ZonedDateTime.now(clock).with(LocalTime.MAX))
+            armedAt == null -> scheduler.schedulePurchase(id, time)
+            // Due but never fired (phone off, force stop): remind now if it is recent.
+            armedAt <= nowMillis -> {
+                if (ReminderRules.shouldCatchUp(armedAt, nowMillis)) {
+                    handlePurchaseAlarm(id, armedAt)
+                } else {
+                    scheduler.schedulePurchase(id, time)
+                }
+            }
+            // Still ahead at the configured time: re-set the same moment (a reboot deletes alarms).
+            AlarmScheduler.zoned(armedAt, clock).let { it.hour == time.hour && it.minute == time.minute } ->
+                scheduler.schedulePurchaseAt(id, armedAt)
+            else -> scheduler.schedulePurchase(id, time)
+        }
     }
 
     /** A reboot or force stop deletes waiting repeats; re-arm them so the intake still ends answered or missed. */

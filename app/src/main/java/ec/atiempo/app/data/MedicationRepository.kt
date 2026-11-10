@@ -6,6 +6,7 @@ import ec.atiempo.app.domain.Medication
 import ec.atiempo.app.domain.MedicationInput
 import ec.atiempo.app.domain.MedicationWithSchedules
 import ec.atiempo.app.domain.Schedule
+import ec.atiempo.app.domain.StockAlert
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.time.Clock
@@ -26,11 +27,20 @@ class MedicationRepository(
     suspend fun getMedication(id: Long): MedicationWithSchedules? =
         medicationDao.getWithSchedules(id)?.toDomain()
 
-    /** Creates or updates a medication. Returns its id. */
-    suspend fun saveMedication(id: Long?, input: MedicationInput): Long = db.withTransaction {
+    suspend fun allMedications(): List<Medication> = medicationDao.getAll().map { it.toDomain() }
+
+    /** [alert] is set when a corrected count crossed a purchase threshold going down. */
+    data class SaveResult(val id: Long, val alert: StockAlert?)
+
+    /**
+     * Creates or updates a medication. With [keepStock] the count in the database is kept,
+     * so a purchase registered while the edit screen was open is not overwritten.
+     */
+    suspend fun saveMedication(id: Long?, input: MedicationInput, keepStock: Boolean = false): SaveResult = db.withTransaction {
         val now = clock.millis()
         val existing = id?.let { medicationDao.get(it) }?.toDomain()
 
+        var alert: StockAlert? = null
         val medicationId = if (existing == null) {
             medicationDao.insert(
                 Medication(
@@ -45,8 +55,9 @@ class MedicationRepository(
             )
         } else {
             // A different count typed in the edit screen is recorded as a correction.
-            val adjusted = InventoryRules.adjustStock(existing, input.stock, now)
+            val adjusted = if (keepStock) null else InventoryRules.adjustStock(existing, input.stock, now)
             adjusted?.let { movementDao.insert(it.movement.toEntity()) }
+            alert = adjusted?.alert
             val base = adjusted?.medication ?: existing
             medicationDao.update(
                 base.copy(
@@ -61,7 +72,25 @@ class MedicationRepository(
         }
 
         replaceSchedules(medicationId, input)
-        medicationId
+        SaveResult(medicationId, alert)
+    }
+
+    /** "Ya compré": adds the quantity and turns purchase reminders off. Null if the medication is gone. */
+    suspend fun registerPurchase(id: Long, quantity: Double): InventoryRules.PurchaseResult? = db.withTransaction {
+        val medication = medicationDao.get(id)?.toDomain() ?: return@withTransaction null
+        val result = InventoryRules.registerPurchase(medication, quantity, clock.millis())
+        medicationDao.update(result.medication.toEntity())
+        movementDao.insert(result.movement.toEntity())
+        result
+    }
+
+    /** "Corregir cantidad". Null if the medication is gone or the count did not change. */
+    suspend fun adjustStock(id: Long, newValue: Double): InventoryRules.AdjustResult? = db.withTransaction {
+        val medication = medicationDao.get(id)?.toDomain() ?: return@withTransaction null
+        val result = InventoryRules.adjustStock(medication, newValue, clock.millis()) ?: return@withTransaction null
+        medicationDao.update(result.medication.toEntity())
+        movementDao.insert(result.movement.toEntity())
+        result
     }
 
     suspend fun scheduleIds(medicationId: Long): List<Long> =

@@ -21,6 +21,9 @@ interface MedicationDao {
     @Query("SELECT * FROM medication WHERE id = :id")
     suspend fun get(id: Long): MedicationEntity?
 
+    @Query("SELECT * FROM medication")
+    suspend fun getAll(): List<MedicationEntity>
+
     @Insert
     suspend fun insert(medication: MedicationEntity): Long
 

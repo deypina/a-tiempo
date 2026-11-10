@@ -32,6 +32,9 @@ import ec.atiempo.app.R
 import ec.atiempo.app.ui.meds.EditMedicationScreen
 import ec.atiempo.app.ui.meds.EditMedicationViewModel
 import ec.atiempo.app.ui.meds.MedsScreen
+import ec.atiempo.app.ui.purchase.QuantityEntryScreen
+import ec.atiempo.app.ui.purchase.QuantityEntryViewModel
+import ec.atiempo.app.ui.purchase.QuantityMode
 import ec.atiempo.app.ui.today.TodayScreen
 
 private enum class Tab(
@@ -48,6 +51,12 @@ private const val EDIT_MED_ROUTE =
     "meds/edit?${EditMedicationViewModel.ARG_MEDICATION_ID}={${EditMedicationViewModel.ARG_MEDICATION_ID}}"
 
 private fun editMedRoute(id: Long?) = "meds/edit?${EditMedicationViewModel.ARG_MEDICATION_ID}=${id ?: -1L}"
+
+private const val QUANTITY_ROUTE =
+    "meds/quantity/{${QuantityEntryViewModel.ARG_MEDICATION_ID}}?${QuantityEntryViewModel.ARG_MODE}={${QuantityEntryViewModel.ARG_MODE}}"
+
+private fun quantityRoute(id: Long, mode: QuantityMode) =
+    "meds/quantity/$id?${QuantityEntryViewModel.ARG_MODE}=${mode.name}"
 
 @Composable
 fun ATiempoRoot() {
@@ -99,7 +108,21 @@ fun ATiempoRoot() {
                 MedsScreen(
                     onAdd = { navController.navigate(editMedRoute(null)) },
                     onOpen = { id -> navController.navigate(editMedRoute(id)) },
+                    onPurchase = { id -> navController.navigate(quantityRoute(id, QuantityMode.PURCHASE)) },
+                    onAdjust = { id -> navController.navigate(quantityRoute(id, QuantityMode.ADJUST)) },
                 )
+            }
+            composable(
+                route = QUANTITY_ROUTE,
+                arguments = listOf(
+                    navArgument(QuantityEntryViewModel.ARG_MEDICATION_ID) { type = NavType.LongType },
+                    navArgument(QuantityEntryViewModel.ARG_MODE) {
+                        type = NavType.StringType
+                        defaultValue = QuantityMode.PURCHASE.name
+                    },
+                ),
+            ) {
+                QuantityEntryScreen(onClose = { navController.popBackStack() })
             }
             composable(
                 route = EDIT_MED_ROUTE,

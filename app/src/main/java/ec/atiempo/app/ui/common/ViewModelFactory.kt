@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import ec.atiempo.app.ATiempoApp
 import ec.atiempo.app.ui.meds.EditMedicationViewModel
 import ec.atiempo.app.ui.meds.MedsViewModel
+import ec.atiempo.app.ui.purchase.QuantityEntryViewModel
 import ec.atiempo.app.ui.today.TodayViewModel
 import ec.atiempo.app.ui.welcome.WelcomeViewModel
 
@@ -18,6 +19,13 @@ object AppViewModelFactory {
         }
         initializer {
             EditMedicationViewModel(
+                app().container.medicationRepository,
+                app().container.reminderManager,
+                createSavedStateHandle(),
+            )
+        }
+        initializer {
+            QuantityEntryViewModel(
                 app().container.medicationRepository,
                 app().container.reminderManager,
                 createSavedStateHandle(),

@@ -117,7 +117,12 @@ Registrar una compra siempre apaga los avisos, aunque el stock siga bajo (PRD F5
 - Tras reiniciar, también se vuelven a armar las repeticiones de las tomas sin responder de las últimas 6 horas.
 - Todas las entradas de `ReminderManager` corren bajo un mismo candado (`Mutex`), así una alarma y un toque que llegan juntos se atienden uno tras otro.
 - Sin el permiso de alarmas exactas, Android puede retrasar mucho la alarma (no solo minutos). Por eso la bienvenida lo pide y Hoy muestra la advertencia hasta concederlo.
-- Aviso diario de compra urgente: una alarma por medicamento a `urgentReminderHour` mientras `stock <= urgentThreshold` y no haya compra.
+- Aviso diario de compra urgente: una alarma por medicamento a `urgentReminderHour` mientras `stock <= urgentThreshold` y no haya compra (`restockPending`), y el medicamento no esté pausado. `requestCode` = `300000 + medicationId`. Las reglas viven en `domain/PurchaseRules.kt`.
+  - Al cruzar el umbral urgente o llegar a 0 se avisa en ese momento y la primera repetición es al día siguiente a esa hora. Si al sonar el stock es 0, muestra el aviso "Se le acabaron…".
+  - Hay una sola notificación de compra por medicamento (id `300000 + medicationId`): el aviso más grave reemplaza al anterior.
+  - Registrar una compra cancela la alarma y la notificación. Corregir la cantidad por encima del umbral de aviso también quita la notificación.
+  - Igual que las tomas: se guarda la hora armada; al reprogramar, si estaba vencida hace 2 horas o menos se avisa en ese momento, y si sigue pendiente a la hora configurada se vuelve a armar en el mismo momento (un reinicio borra las alarmas).
+- Si se edita un medicamento sin tocar el campo de cantidad, se conserva la cantidad de la base de datos, así una compra registrada desde la notificación mientras la pantalla estaba abierta no se pierde.
 
 ### Permisos
 | Permiso | Motivo | Cómo |
@@ -145,7 +150,7 @@ Escuchar también `ACTION_TIME_CHANGED`, `ACTION_TIMEZONE_CHANGED`, `ACTION_MY_P
 ### Acciones de notificación
 - `NotificationActionReceiver` maneja `ACTION_TAKEN`, `ACTION_SNOOZE`, `ACTION_PURCHASED`.
 - Usar `goAsync()` y una corrutina para escribir en Room; terminar con `pendingResult.finish()`.
-- "Ya compré" abre una Activity pequeña (diálogo) para escribir la cantidad.
+- "Ya compré" abre `PurchaseActivity` (no exportada, fuera de recientes) con la pantalla "¿Cuántas pastillas compró?". La misma pantalla se abre desde "Registrar compra" y "Corregir cantidad" en *Mis medicamentos*.
 - Tocar la notificación abre la pantalla Hoy.
 
 ## 5. Interfaz
@@ -185,7 +190,7 @@ La app guarda datos de salud. Reglas que toda fase debe cumplir:
 - Exportar e importar respaldo (v1.1): validar el JSON antes de escribir (tipos, rangos, stock ≥ 0) y hacerlo en una transacción; un archivo inválido no cambia nada.
 
 **Componentes de Android**
-- Solo `MainActivity` es `exported="true"`. Los receptores de acciones de notificación y de alarmas son `exported="false"`.
+- Solo `MainActivity` es `exported="true"`. `PurchaseActivity` y los receptores de acciones de notificación y de alarmas son `exported="false"`.
 - El receptor de arranque y cambio de hora es `exported="true"` (lo exige el sistema), pero solo reprograma alarmas: no lee datos del Intent ni cambia el inventario.
 - Todo `PendingIntent` usa `FLAG_IMMUTABLE` e Intents explícitos (con la clase de destino).
 - Los receptores validan el `eventId` o `medicationId` contra la base de datos antes de actuar; un id desconocido se ignora.

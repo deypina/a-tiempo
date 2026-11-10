@@ -27,7 +27,7 @@ private fun BroadcastReceiver.runAsync(block: suspend () -> Unit) {
 private val Context.reminders: ReminderManager
     get() = (applicationContext as ATiempoApp).container.reminderManager
 
-/** Daily and repeat alarms. Not exported: only this app's PendingIntents reach it. */
+/** Daily, repeat and purchase alarms. Not exported: only this app's PendingIntents reach it. */
 class ReminderAlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         when (intent.action) {
@@ -42,12 +42,19 @@ class ReminderAlarmReceiver : BroadcastReceiver() {
                 val eventId = intent.getStringExtra(AlarmScheduler.EXTRA_EVENT_ID) ?: return
                 runAsync { context.reminders.onRepeatAlarm(eventId) }
             }
+            ACTION_PURCHASE_ALARM -> {
+                val medicationId = intent.getLongExtra(AlarmScheduler.EXTRA_MEDICATION_ID, -1L)
+                val scheduledAt = intent.getLongExtra(AlarmScheduler.EXTRA_SCHEDULED_AT, -1L)
+                if (medicationId <= 0 || scheduledAt <= 0) return
+                runAsync { context.reminders.onPurchaseAlarm(medicationId, scheduledAt) }
+            }
         }
     }
 
     companion object {
         const val ACTION_INTAKE_ALARM = "ec.atiempo.app.action.INTAKE_ALARM"
         const val ACTION_REPEAT_ALARM = "ec.atiempo.app.action.REPEAT_ALARM"
+        const val ACTION_PURCHASE_ALARM = "ec.atiempo.app.action.PURCHASE_ALARM"
     }
 }
 
