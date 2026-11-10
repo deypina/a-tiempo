@@ -121,7 +121,7 @@ class ReminderNotifier(private val context: Context) {
     }
 
     /** Normal, urgent or out-of-stock purchase alert with "Ya compré". One per medication. */
-    fun showPurchase(medication: Medication, alert: StockAlert, userName: String) {
+    fun showPurchase(medication: Medication, alert: StockAlert, userName: String, silent: Boolean = false) {
         val name = userName.trim()
         val n = Quantity.format(medication.stock)
         val singular = Quantity.isSingular(medication.stock)
@@ -145,6 +145,7 @@ class ReminderNotifier(private val context: Context) {
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setAutoCancel(true)
+            .setOnlyAlertOnce(silent)
             .setContentIntent(openTodayIntent(AlarmScheduler.purchaseCode(medication.id)))
             .addAction(0, context.getString(R.string.notif_action_purchased), purchaseIntent(medication.id))
             .build()
@@ -152,6 +153,14 @@ class ReminderNotifier(private val context: Context) {
     }
 
     fun cancelPurchase(medicationId: Long) = manager.cancel(purchaseId(medicationId))
+
+    /** Updates the count of a purchase alert still on screen, without sounding again. */
+    fun refreshPurchase(medication: Medication, alert: StockAlert, userName: String) {
+        val id = purchaseId(medication.id)
+        val showing = context.getSystemService(NotificationManager::class.java)
+            .activeNotifications.any { it.id == id }
+        if (showing) showPurchase(medication, alert, userName, silent = true)
+    }
 
     /** "Listo. Ahora tiene 13 pastillas de {medicamento}." */
     fun showPurchaseDoneToast(medication: Medication) {

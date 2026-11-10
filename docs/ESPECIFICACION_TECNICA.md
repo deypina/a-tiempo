@@ -196,7 +196,7 @@ La app guarda datos de salud. Reglas que toda fase debe cumplir:
 - Los receptores validan el `eventId` o `medicationId` contra la base de datos antes de actuar; un id desconocido se ignora.
 
 **Notificaciones**
-- Por pedido del PRD (F3), las notificaciones de toma son visibles en la pantalla bloqueada, así que muestran el nombre del medicamento. Es una decisión de usabilidad sobre privacidad; si se cambia, usar `VISIBILITY_PRIVATE` con una versión pública sin el nombre del medicamento.
+- Por pedido del PRD (F3), las notificaciones de toma son visibles en la pantalla bloqueada, así que muestran el nombre del medicamento. Los avisos de compra siguen la misma decisión (también muestran el nombre). Es una decisión de usabilidad sobre privacidad; si se cambia, usar `VISIBILITY_PRIVATE` con una versión pública sin el nombre del medicamento.
 
 **Compilación y publicación**
 - La llave de firma nunca entra al repositorio (`.gitignore`). En CI se decodifica en `$RUNNER_TEMP` y se borra al terminar.

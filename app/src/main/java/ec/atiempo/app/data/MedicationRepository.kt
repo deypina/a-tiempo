@@ -55,7 +55,12 @@ class MedicationRepository(
             )
         } else {
             // A different count typed in the edit screen is recorded as a correction.
-            val adjusted = if (keepStock) null else InventoryRules.adjustStock(existing, input.stock, now)
+            // Thresholds typed in the same save count when checking the new stock.
+            val withThresholds = existing.copy(
+                warnThreshold = input.warnThreshold,
+                urgentThreshold = input.urgentThreshold,
+            )
+            val adjusted = if (keepStock) null else InventoryRules.adjustStock(withThresholds, input.stock, now)
             adjusted?.let { movementDao.insert(it.movement.toEntity()) }
             alert = adjusted?.alert
             val base = adjusted?.medication ?: existing

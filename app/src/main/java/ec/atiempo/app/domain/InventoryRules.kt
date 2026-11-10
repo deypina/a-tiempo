@@ -87,10 +87,11 @@ object InventoryRules {
      */
     fun registerPurchase(medication: Medication, quantity: Double, now: Long): PurchaseResult {
         require(quantity > 0) { "purchase quantity must be greater than 0" }
-        val newStock = medication.stock + quantity
+        // Capped so the count always stays editable (Quantity.MAX).
+        val newStock = min(medication.stock + quantity, Quantity.MAX)
         return PurchaseResult(
             medication = medication.copy(stock = newStock, restockPending = false),
-            movement = movement(medication.id, MovementType.PURCHASE, quantity, newStock, now),
+            movement = movement(medication.id, MovementType.PURCHASE, newStock - medication.stock, newStock, now),
         )
     }
 

@@ -30,6 +30,13 @@ object PurchaseRules {
     fun keepAlertVisible(medication: Medication): Boolean =
         medication.restockPending && medication.stock <= medication.warnThreshold
 
+    /** Level matching the current stock, used to keep a visible alert's count up to date. */
+    fun currentLevel(medication: Medication): StockAlert = when {
+        medication.stock <= 0.0 -> StockAlert.OUT
+        medication.stock <= medication.urgentThreshold -> StockAlert.URGENT
+        else -> StockAlert.LOW
+    }
+
     /** Quantity typed in "¿Cuántas pastillas compró?". Null unless it is greater than 0. */
     fun parsePurchase(text: String): Double? = Quantity.parse(text)?.takeIf { it > 0.0 }
 

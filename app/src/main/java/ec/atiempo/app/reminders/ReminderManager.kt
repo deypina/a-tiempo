@@ -67,7 +67,7 @@ class ReminderManager(
             notifier.cancelPurchase(medicationId)
         } else {
             val prefs = settings.current()
-            if (alert != null && medication.active) notifier.showPurchase(medication, alert, prefs.userName)
+            showOrRefreshPurchase(medication, alert, prefs)
             syncPurchase(medication, prefs, justAlerted = alert != null)
         }
     }
@@ -111,7 +111,7 @@ class ReminderManager(
         notifier.showTakenToast(result.medication)
         val prefs = settings.current()
         // Crossing two thresholds at once (6 to 2) returns only the most serious alert (C-21).
-        result.alert?.let { notifier.showPurchase(result.medication, it, prefs.userName) }
+        showOrRefreshPurchase(result.medication, result.alert, prefs)
         syncPurchase(result.medication, prefs, justAlerted = result.alert != null)
     }
 
@@ -134,9 +134,7 @@ class ReminderManager(
     suspend fun onAdjust(medicationId: Long, newValue: Double) = lock.withLock {
         val result = medications.adjustStock(medicationId, newValue) ?: return@withLock
         val prefs = settings.current()
-        if (result.alert != null && result.medication.active) {
-            notifier.showPurchase(result.medication, result.alert, prefs.userName)
-        }
+        showOrRefreshPurchase(result.medication, result.alert, prefs)
         syncPurchase(result.medication, prefs, justAlerted = result.alert != null)
     }
 
@@ -175,6 +173,16 @@ class ReminderManager(
         val prefs = settings.current()
         notifier.showIntake(target.medication, event, prefs.userName, prefs.snoozeMinutes, isRepeat = false)
         scheduler.scheduleRepeat(event, prefs.snoozeMinutes)
+    }
+
+    /** Shows a new alert, or keeps the count of the one already on screen up to date. */
+    private fun showOrRefreshPurchase(medication: Medication, alert: StockAlert?, prefs: Settings) {
+        if (!medication.active) return
+        when {
+            alert != null -> notifier.showPurchase(medication, alert, prefs.userName)
+            PurchaseRules.keepAlertVisible(medication) ->
+                notifier.refreshPurchase(medication, PurchaseRules.currentLevel(medication), prefs.userName)
+        }
     }
 
     private suspend fun handlePurchaseAlarm(medicationId: Long, scheduledAt: Long) {

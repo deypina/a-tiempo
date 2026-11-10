@@ -59,6 +59,20 @@ class PurchaseRulesTest {
         assertFalse(PurchaseRules.keepAlertVisible(med(2.0, pending = false)))
     }
 
+    @Test
+    fun currentLevel_followsStock() {
+        assertEquals(StockAlert.OUT, PurchaseRules.currentLevel(med(0.0)))
+        assertEquals(StockAlert.URGENT, PurchaseRules.currentLevel(med(3.0)))
+        assertEquals(StockAlert.LOW, PurchaseRules.currentLevel(med(4.0)))
+    }
+
+    @Test
+    fun purchase_neverGoesAboveMax() {
+        val bought = InventoryRules.registerPurchase(med(9995.0), 30.0, 1L)
+        assertEquals(Quantity.MAX, bought.medication.stock, 0.0)
+        assertEquals(4.0, bought.movement.delta, 0.0)
+    }
+
     // --- Typed quantities ---
 
     @Test
