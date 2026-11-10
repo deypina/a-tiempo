@@ -49,6 +49,7 @@ data class IntakeEvent(
     val scheduleId: Long,
     val scheduledAt: Long,
     val status: IntakeStatus = IntakeStatus.PENDING,
+    /** Unanswered repeats sent since the last reminder (see ReminderRules.onRepeatDue). */
     val snoozeCount: Int = 0,
     val takenAt: Long? = null,
     /** Amount actually subtracted when taken, so it can be given back on undo. */
