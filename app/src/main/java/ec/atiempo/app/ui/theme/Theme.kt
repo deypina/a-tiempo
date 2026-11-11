@@ -6,7 +6,10 @@ import androidx.compose.material3.Typography
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.sp
 
 // Sober palette with a green accent. Status colors are always paired with an icon and text.
@@ -44,11 +47,18 @@ private val ATiempoTypography = BaseTypography.copy(
     titleLarge = BaseTypography.titleLarge.copy(fontSize = 24.sp, lineHeight = 32.sp),
 )
 
+/**
+ * [fontScale] is "Tamaño de letra" from Ajustes. It multiplies the phone's own font size,
+ * so a large system font and "Muy grande" add up (C-27).
+ */
 @Composable
-fun ATiempoTheme(content: @Composable () -> Unit) {
-    MaterialTheme(
-        colorScheme = if (isSystemInDarkTheme()) DarkColors else LightColors,
-        typography = ATiempoTypography,
-        content = content,
-    )
+fun ATiempoTheme(fontScale: Float = 1f, content: @Composable () -> Unit) {
+    val density = LocalDensity.current
+    CompositionLocalProvider(LocalDensity provides Density(density.density, density.fontScale * fontScale)) {
+        MaterialTheme(
+            colorScheme = if (isSystemInDarkTheme()) DarkColors else LightColors,
+            typography = ATiempoTypography,
+            content = content,
+        )
+    }
 }

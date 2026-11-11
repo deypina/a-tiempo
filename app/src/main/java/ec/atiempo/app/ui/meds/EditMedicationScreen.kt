@@ -1,6 +1,5 @@
 package ec.atiempo.app.ui.meds
 
-import android.text.format.DateFormat
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
@@ -16,7 +15,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -25,8 +23,6 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TimePicker
-import androidx.compose.material3.rememberTimePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,7 +31,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardCapitalization
@@ -48,6 +43,7 @@ import ec.atiempo.app.domain.DoseTime
 import ec.atiempo.app.domain.MedicationError
 import ec.atiempo.app.domain.Quantity
 import ec.atiempo.app.ui.common.AppViewModelFactory
+import ec.atiempo.app.ui.common.TimePickerDialog
 import ec.atiempo.app.ui.common.formatTime
 
 private val ButtonModifier = Modifier
@@ -166,6 +162,8 @@ fun EditMedicationScreen(
 
     if (showTimePicker) {
         TimePickerDialog(
+            title = stringResource(R.string.med_times),
+            initial = DoseTime(8, 0),
             onDismiss = { showTimePicker = false },
             onConfirm = {
                 viewModel.onAddTime(it)
@@ -296,26 +294,3 @@ private fun errorText(show: Boolean, message: Int): (@Composable () -> Unit)? =
     } else {
         null
     }
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun TimePickerDialog(onDismiss: () -> Unit, onConfirm: (DoseTime) -> Unit) {
-    val is24Hour = DateFormat.is24HourFormat(LocalContext.current)
-    val pickerState = rememberTimePickerState(initialHour = 8, initialMinute = 0, is24Hour = is24Hour)
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text(stringResource(R.string.med_times)) },
-        text = { TimePicker(state = pickerState) },
-        confirmButton = {
-            TextButton(onClick = { onConfirm(DoseTime(pickerState.hour, pickerState.minute)) }, modifier = Modifier.heightIn(min = 56.dp)) {
-                Text(stringResource(R.string.common_ok))
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss, modifier = Modifier.heightIn(min = 56.dp)) {
-                Text(stringResource(R.string.common_cancel))
-            }
-        },
-    )
-}

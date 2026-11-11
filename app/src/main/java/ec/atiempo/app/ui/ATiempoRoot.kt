@@ -2,14 +2,10 @@ package ec.atiempo.app.ui
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -29,12 +25,17 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import ec.atiempo.app.R
+import ec.atiempo.app.ui.history.HistoryScreen
+import ec.atiempo.app.ui.history.HistoryViewModel
 import ec.atiempo.app.ui.meds.EditMedicationScreen
 import ec.atiempo.app.ui.meds.EditMedicationViewModel
 import ec.atiempo.app.ui.meds.MedsScreen
 import ec.atiempo.app.ui.purchase.QuantityEntryScreen
 import ec.atiempo.app.ui.purchase.QuantityEntryViewModel
 import ec.atiempo.app.ui.purchase.QuantityMode
+import ec.atiempo.app.ui.settings.AboutScreen
+import ec.atiempo.app.ui.settings.PermissionsScreen
+import ec.atiempo.app.ui.settings.SettingsScreen
 import ec.atiempo.app.ui.today.TodayScreen
 
 private enum class Tab(
@@ -57,6 +58,13 @@ private const val QUANTITY_ROUTE =
 
 private fun quantityRoute(id: Long, mode: QuantityMode) =
     "meds/quantity/$id?${QuantityEntryViewModel.ARG_MODE}=${mode.name}"
+
+private const val HISTORY_ROUTE = "meds/history/{${HistoryViewModel.ARG_MEDICATION_ID}}"
+
+private fun historyRoute(id: Long) = "meds/history/$id"
+
+private const val PERMISSIONS_ROUTE = "settings/permissions"
+private const val ABOUT_ROUTE = "settings/about"
 
 @Composable
 fun ATiempoRoot() {
@@ -110,7 +118,14 @@ fun ATiempoRoot() {
                     onOpen = { id -> navController.navigate(editMedRoute(id)) },
                     onPurchase = { id -> navController.navigate(quantityRoute(id, QuantityMode.PURCHASE)) },
                     onAdjust = { id -> navController.navigate(quantityRoute(id, QuantityMode.ADJUST)) },
+                    onHistory = { id -> navController.navigate(historyRoute(id)) },
                 )
+            }
+            composable(
+                route = HISTORY_ROUTE,
+                arguments = listOf(navArgument(HistoryViewModel.ARG_MEDICATION_ID) { type = NavType.LongType }),
+            ) {
+                HistoryScreen(onClose = { navController.popBackStack() })
             }
             composable(
                 route = QUANTITY_ROUTE,
@@ -136,27 +151,17 @@ fun ATiempoRoot() {
                 EditMedicationScreen(onClose = { navController.popBackStack() })
             }
             composable(Tab.Settings.route) {
-                PlaceholderScreen(
-                    title = stringResource(R.string.settings_title),
-                    body = stringResource(R.string.disclaimer),
+                SettingsScreen(
+                    onPermissions = { navController.navigate(PERMISSIONS_ROUTE) },
+                    onAbout = { navController.navigate(ABOUT_ROUTE) },
                 )
             }
-        }
-    }
-}
-
-/** Temporary screen body until each tab is built in later phases. */
-@Composable
-private fun PlaceholderScreen(title: String, body: String? = null) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(24.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Text(text = title, style = MaterialTheme.typography.headlineLarge)
-        if (body != null) {
-            Text(text = body, style = MaterialTheme.typography.bodyLarge)
+            composable(PERMISSIONS_ROUTE) {
+                PermissionsScreen(onClose = { navController.popBackStack() })
+            }
+            composable(ABOUT_ROUTE) {
+                AboutScreen(onClose = { navController.popBackStack() })
+            }
         }
     }
 }

@@ -10,6 +10,7 @@ import ec.atiempo.app.domain.ReminderRules
 import ec.atiempo.app.domain.ReminderRules.RepeatDecision
 import ec.atiempo.app.domain.Schedule
 import ec.atiempo.app.domain.StockAlert
+import ec.atiempo.app.domain.TodayRules
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.time.Clock
@@ -102,12 +103,44 @@ class ReminderManager(
     }
 
     /** "Ya la tomé". Confirming twice subtracts once (the second call finds it TAKEN). */
-    suspend fun onTaken(eventId: String) = lock.withLock {
-        val event = intakes.getEvent(eventId) ?: return@withLock
+    suspend fun onTaken(eventId: String) = lock.withLock { take(eventId) }
+
+    /**
+     * "Ya la tomé" from Hoy (C-22). Works the same as from the notification, also before the
+     * reminder rang: the intake of today is created first, and the alarm later finds it taken.
+     */
+    suspend fun onTakenToday(medicationId: Long, scheduleId: Long) = lock.withLock {
+        val target = intakes.reminderTarget(medicationId, scheduleId) ?: return@withLock
+        val today = ZonedDateTime.now(clock).toLocalDate()
+        val eventId = intakes.ensureEvent(target, TodayRules.scheduledAt(today, target.schedule.time, clock.zone))
+        // A late confirmation also clears the "No confirmó su toma" notice.
+        notifier.cancelAllFor(scheduleId)
+        take(eventId)
+    }
+
+    /**
+     * "Deshacer" (C-23): gives the dose back and leaves the intake pending. If its time already
+     * passed, the reminder starts again after the snooze interval, as for any unanswered intake.
+     */
+    suspend fun onUndo(eventId: String) = lock.withLock {
+        val result = intakes.undoIntake(eventId) ?: return@withLock
+        val prefs = settings.current()
+        if (result.event.scheduledAt <= clock.millis()) {
+            scheduler.scheduleRepeat(result.event, prefs.snoozeMinutes)
+        }
+        showOrRefreshPurchase(result.medication, null, prefs)
+        syncPurchase(result.medication, prefs)
+    }
+
+    /** When a snoozed intake of this schedule reminds again. */
+    fun snoozedUntil(scheduleId: Long): Long? = scheduler.repeatAt(scheduleId)
+
+    private suspend fun take(eventId: String) {
+        val event = intakes.getEvent(eventId) ?: return
         val result = intakes.confirmIntake(eventId)
         scheduler.cancelRepeat(event.scheduleId)
         notifier.cancelIntake(event.scheduleId)
-        result ?: return@withLock
+        result ?: return
         notifier.showTakenToast(result.medication)
         val prefs = settings.current()
         // Crossing two thresholds at once (6 to 2) returns only the most serious alert (C-21).
@@ -138,12 +171,16 @@ class ReminderManager(
         syncPurchase(result.medication, prefs, justAlerted = result.alert != null)
     }
 
-    /** "Recordar en X min". Never changes the stock. */
+    /**
+     * "Recordar en X min". Never changes the stock. The alarm (and its time) is stored before the
+     * status changes, so Hoy already knows the new time when it sees the intake snoozed.
+     */
     suspend fun onSnooze(eventId: String) = lock.withLock {
         val event = intakes.getEvent(eventId) ?: return@withLock
         notifier.cancelIntake(event.scheduleId)
-        val snoozed = intakes.snooze(eventId) ?: return@withLock
-        scheduler.scheduleRepeat(snoozed, settings.current().snoozeMinutes)
+        if (!ReminderRules.canSnooze(event)) return@withLock
+        scheduler.scheduleRepeat(event, settings.current().snoozeMinutes)
+        if (intakes.snooze(eventId) == null) scheduler.cancelRepeat(event.scheduleId)
     }
 
     /**
@@ -232,10 +269,11 @@ class ReminderManager(
 
     /** A reboot or force stop deletes waiting repeats; re-arm them so the intake still ends answered or missed. */
     private suspend fun restoreRepeats() {
-        val since = clock.millis() - RESTORE_WINDOW_MS
+        val now = clock.millis()
         val minutes = settings.current().snoozeMinutes
-        intakes.unansweredSince(since)
-            .filter { !scheduler.hasRepeat(it.scheduleId) }
+        intakes.unansweredSince(now - RESTORE_WINDOW_MS)
+            // A future intake (taken early in Hoy, then undone) waits for its own daily alarm.
+            .filter { it.scheduledAt <= now && !scheduler.hasRepeat(it.scheduleId) }
             .forEach { scheduler.scheduleRepeat(it, minutes) }
     }
 

@@ -69,3 +69,10 @@ data class StockMovement(
 
 /** Purchase reminder triggered when stock crosses a threshold going down. */
 enum class StockAlert { LOW, URGENT, OUT }
+
+/** "Tamaño de letra" in Ajustes. Multiplies the phone's own font size, so both add up. */
+enum class FontSize(val scale: Float) {
+    NORMAL(1.0f),
+    LARGE(1.15f),
+    XLARGE(1.3f),
+}

@@ -40,6 +40,7 @@ fun MedsScreen(
     onOpen: (Long) -> Unit,
     onPurchase: (Long) -> Unit,
     onAdjust: (Long) -> Unit,
+    onHistory: (Long) -> Unit,
     viewModel: MedsViewModel = viewModel(factory = AppViewModelFactory.instance),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -75,6 +76,7 @@ fun MedsScreen(
                     onClick = { onOpen(item.medication.id) },
                     onPurchase = { onPurchase(item.medication.id) },
                     onAdjust = { onAdjust(item.medication.id) },
+                    onHistory = { onHistory(item.medication.id) },
                 )
             }
         }
@@ -87,6 +89,7 @@ private fun MedicationCard(
     onClick: () -> Unit,
     onPurchase: () -> Unit,
     onAdjust: () -> Unit,
+    onHistory: () -> Unit,
 ) {
     val med = item.medication
     Card(
@@ -120,6 +123,9 @@ private fun MedicationCard(
             }
             OutlinedButton(onClick = onAdjust, modifier = CardButtonModifier) {
                 Text(stringResource(R.string.adjust_btn))
+            }
+            OutlinedButton(onClick = onHistory, modifier = CardButtonModifier) {
+                Text(stringResource(R.string.history_btn))
             }
         }
     }

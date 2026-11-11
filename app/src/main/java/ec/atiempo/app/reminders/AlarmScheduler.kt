@@ -56,9 +56,16 @@ class AlarmScheduler(
     fun scheduleRepeat(event: IntakeEvent, minutes: Int) {
         val triggerAt = clock.millis() + minutes * 60_000L
         setAlarm(triggerAt, broadcast(repeatCode(event.scheduleId), repeatIntent().putExtra(EXTRA_EVENT_ID, event.id)))
+        armed.edit { putLong(repeatKey(event.scheduleId), triggerAt) }
     }
 
-    fun cancelRepeat(scheduleId: Long) = cancel(repeatCode(scheduleId), repeatIntent())
+    /** When the waiting repeat (or snooze) alarm of this schedule rings, shown in Hoy as "Le recordaremos a las…". */
+    fun repeatAt(scheduleId: Long): Long? = armed.getLong(repeatKey(scheduleId), 0L).takeIf { it > 0L }
+
+    fun cancelRepeat(scheduleId: Long) {
+        cancel(repeatCode(scheduleId), repeatIntent())
+        armed.edit { remove(repeatKey(scheduleId)) }
+    }
 
     fun cancelAll(scheduleId: Long) {
         cancel(dailyCode(scheduleId), Intent(context, ReminderAlarmReceiver::class.java).setAction(ReminderAlarmReceiver.ACTION_INTAKE_ALARM))
@@ -143,6 +150,7 @@ class AlarmScheduler(
 
         private fun armedKey(scheduleId: Long) = "schedule_$scheduleId"
         private fun purchaseKey(medicationId: Long) = "purchase_$medicationId"
+        private fun repeatKey(scheduleId: Long) = "repeat_$scheduleId"
 
         /** Epoch millis to the zone-aware time used to arm the next day. */
         fun zoned(millis: Long, clock: Clock): ZonedDateTime = Instant.ofEpochMilli(millis).atZone(clock.zone)

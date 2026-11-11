@@ -7,6 +7,7 @@ import ec.atiempo.app.domain.MedicationInput
 import ec.atiempo.app.domain.MedicationWithSchedules
 import ec.atiempo.app.domain.Schedule
 import ec.atiempo.app.domain.StockAlert
+import ec.atiempo.app.domain.StockMovement
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.time.Clock
@@ -23,6 +24,10 @@ class MedicationRepository(
 
     fun observeMedications(): Flow<List<MedicationWithSchedules>> =
         medicationDao.observeAllWithSchedules().map { list -> list.map { it.toDomain() } }
+
+    /** Stock movements of one medication, newest first, for its history. */
+    fun observeMovements(medicationId: Long): Flow<List<StockMovement>> =
+        movementDao.observeForMedication(medicationId).map { list -> list.map { it.toDomain() } }
 
     suspend fun getMedication(id: Long): MedicationWithSchedules? =
         medicationDao.getWithSchedules(id)?.toDomain()

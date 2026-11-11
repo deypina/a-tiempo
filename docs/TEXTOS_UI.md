@@ -151,6 +151,7 @@ Reglas de estilo:
 | history_adjust | Corrigió la cantidad a {n} |
 | history_undo | Deshizo una toma |
 | history_empty | Aún no hay movimientos. |
+| history_btn | Ver historial |
 
 ## Ajustes
 | Clave | Texto |
@@ -165,6 +166,7 @@ Reglas de estilo:
 | font_large | Grande |
 | font_xlarge | Muy grande |
 | settings_permissions | Revisar permisos y batería |
+| perm_all_ok | Todo está listo. Los avisos le llegarán a tiempo. |
 | settings_about | Acerca de A Tiempo |
 | about_version | Versión {v} |
 | about_repo | Ver el código en GitHub |

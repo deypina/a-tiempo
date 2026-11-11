@@ -8,7 +8,9 @@ import androidx.compose.ui.res.stringResource
 import ec.atiempo.app.R
 import ec.atiempo.app.domain.DoseTime
 import ec.atiempo.app.domain.Quantity
+import java.time.Instant
 import java.time.LocalTime
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.util.Locale
 
@@ -20,6 +22,18 @@ fun formatTime(time: DoseTime): String {
     val pattern = if (DateFormat.is24HourFormat(LocalContext.current)) "HH:mm" else "h:mm a"
     return LocalTime.of(time.hour, time.minute).format(DateTimeFormatter.ofPattern(pattern, appLocale))
 }
+
+/** Time of an epoch-millis moment in the phone's zone, e.g. "Tomada a las 8:05 a. m.". */
+@Composable
+fun formatTime(millis: Long): String {
+    val time = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalTime()
+    return formatTime(LocalContext.current, time)
+}
+
+/** "mié., 11 nov. 2026" for history lines. */
+fun formatDate(millis: Long): String =
+    Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
+        .format(DateTimeFormatter.ofPattern("EEE, d MMM yyyy", appLocale))
 
 /** Same as [formatTime] for code outside Compose (notifications). */
 fun formatTime(context: Context, time: LocalTime): String {

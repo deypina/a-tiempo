@@ -8,9 +8,11 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -26,13 +28,21 @@ import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ec.atiempo.app.R
+import ec.atiempo.app.domain.InventoryRules
+import ec.atiempo.app.domain.IntakeStatus
+import ec.atiempo.app.domain.TodayIntake
 import ec.atiempo.app.reminders.ReminderPermissions
 import ec.atiempo.app.ui.common.AppViewModelFactory
+import ec.atiempo.app.ui.common.formatTime
+import ec.atiempo.app.ui.common.joinWithDots
+import ec.atiempo.app.ui.common.pillQuantity
+import ec.atiempo.app.ui.common.stockLine
 
 @Composable
 fun TodayScreen(viewModel: TodayViewModel = viewModel(factory = AppViewModelFactory.instance)) {
     val context = LocalContext.current
     val userName by viewModel.userName.collectAsStateWithLifecycle()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     var notificationsAllowed by remember { mutableStateOf(true) }
     var exactAllowed by remember { mutableStateOf(true) }
     var batteryOk by remember { mutableStateOf(true) }
@@ -42,6 +52,7 @@ fun TodayScreen(viewModel: TodayViewModel = viewModel(factory = AppViewModelFact
         notificationsAllowed = ReminderPermissions.notificationsAllowed(context)
         exactAllowed = ReminderPermissions.exactAlarmsAllowed(context)
         batteryOk = ReminderPermissions.batteryUnrestricted(context)
+        viewModel.onResume()
     }
 
     Column(
@@ -74,8 +85,75 @@ fun TodayScreen(viewModel: TodayViewModel = viewModel(factory = AppViewModelFact
                 ReminderPermissions.openBatterySettings(context)
             }
         }
+
+        val current = state
+        if (current is TodayUiState.Ready) {
+            if (!current.hasMedications) {
+                Text(stringResource(R.string.today_empty), style = MaterialTheme.typography.bodyLarge)
+            }
+            current.intakes.forEach { item ->
+                IntakeCard(item, onTaken = { viewModel.onTaken(item) }, onUndo = { viewModel.onUndo(item) })
+            }
+        }
     }
 }
+
+@Composable
+private fun IntakeCard(item: TodayIntake, onTaken: () -> Unit, onUndo: () -> Unit) {
+    val med = item.medication
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            Text(med.name, style = MaterialTheme.typography.titleLarge)
+            Text(
+                joinWithDots(listOf(formatTime(item.schedule.time), pillQuantity(med.dosePerIntake))),
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            Text(
+                statusText(item),
+                style = MaterialTheme.typography.bodyLarge,
+                color = when (item.status) {
+                    IntakeStatus.TAKEN -> MaterialTheme.colorScheme.primary
+                    IntakeStatus.MISSED -> MaterialTheme.colorScheme.error
+                    else -> MaterialTheme.colorScheme.onSurface
+                },
+            )
+            Text(
+                stockLine(med.stock, InventoryRules.daysLeft(med, item.scheduleCount)),
+                style = MaterialTheme.typography.bodyLarge,
+            )
+            if (item.canTake) {
+                Button(onClick = onTaken, modifier = ActionModifier) {
+                    Text(stringResource(R.string.btn_taken))
+                }
+            }
+            if (item.canUndo) {
+                OutlinedButton(onClick = onUndo, modifier = ActionModifier) {
+                    Text(stringResource(R.string.btn_undo))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun statusText(item: TodayIntake): String {
+    val takenAt = item.takenAt
+    val snoozedUntil = item.snoozedUntil
+    return when {
+        item.status == IntakeStatus.TAKEN && takenAt != null -> stringResource(R.string.status_taken, formatTime(takenAt))
+        item.status == IntakeStatus.SNOOZED && snoozedUntil != null ->
+            stringResource(R.string.status_snoozed, formatTime(snoozedUntil))
+        item.status == IntakeStatus.MISSED -> stringResource(R.string.status_missed)
+        else -> stringResource(R.string.status_pending)
+    }
+}
+
+private val ActionModifier = Modifier
+    .fillMaxWidth()
+    .heightIn(min = 56.dp)
 
 @Composable
 private fun WarningCard(text: String, onClick: () -> Unit) {

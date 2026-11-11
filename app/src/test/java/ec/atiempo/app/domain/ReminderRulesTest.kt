@@ -162,4 +162,21 @@ class ReminderRulesTest {
         assertFalse(ReminderRules.isStaleAlarm(armedAt = 1_000L, scheduledAt = 1_000L))
         assertFalse(ReminderRules.isStaleAlarm(armedAt = null, scheduledAt = 1_000L))
     }
+
+    @Test
+    fun snoozeMinutesOrDefault_keepsOnlyTheChoices() {
+        assertEquals(5, ReminderRules.snoozeMinutesOrDefault(5))
+        assertEquals(30, ReminderRules.snoozeMinutesOrDefault(30))
+        assertEquals(ReminderRules.DEFAULT_SNOOZE_MINUTES, ReminderRules.snoozeMinutesOrDefault(7))
+        assertEquals(ReminderRules.DEFAULT_SNOOZE_MINUTES, ReminderRules.snoozeMinutesOrDefault(null))
+    }
+
+    @Test
+    fun canSnooze_onlyWhileWaiting() {
+        val event = IntakeEvent(id = "1-1-20261111", medicationId = 1, scheduleId = 1, scheduledAt = 0)
+        assertEquals(true, ReminderRules.canSnooze(event))
+        assertEquals(true, ReminderRules.canSnooze(event.copy(status = IntakeStatus.SNOOZED)))
+        assertEquals(false, ReminderRules.canSnooze(event.copy(status = IntakeStatus.TAKEN)))
+        assertEquals(false, ReminderRules.canSnooze(event.copy(status = IntakeStatus.MISSED)))
+    }
 }

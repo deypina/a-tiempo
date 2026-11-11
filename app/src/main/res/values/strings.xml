@@ -117,6 +117,40 @@
     <string name="adjust_save">Corregir</string>
     <string name="adjust_btn">Corregir cantidad</string>
 
+    <!-- Today -->
+    <string name="status_pending">Pendiente</string>
+    <string name="status_taken">Tomada a las %1$s</string>
+    <string name="status_snoozed">Le recordaremos a las %1$s</string>
+    <string name="status_missed">No confirmada</string>
+    <string name="btn_taken">Ya la tomé</string>
+    <string name="btn_undo">Deshacer</string>
+
+    <!-- History -->
+    <string name="history_title">Historial de %1$s</string>
+    <string name="history_taken">Tomó %1$s</string>
+    <string name="history_missed">No confirmada</string>
+    <string name="history_purchase">Compró %1$s</string>
+    <string name="history_adjust">Corrigió la cantidad a %1$s</string>
+    <string name="history_undo">Deshizo una toma</string>
+    <string name="history_empty">Aún no hay movimientos.</string>
+    <string name="history_btn">Ver historial</string>
+
+    <!-- Settings -->
+    <string name="settings_name">Su nombre o apodo</string>
+    <string name="settings_snooze">Cuando toque \"Recordar\", volver a avisar en</string>
+    <string name="settings_minutes">%1$d minutos</string>
+    <string name="settings_urgent_hour">Hora del aviso diario de compra urgente</string>
+    <string name="settings_font">Tamaño de letra</string>
+    <string name="font_normal">Normal</string>
+    <string name="font_large">Grande</string>
+    <string name="font_xlarge">Muy grande</string>
+    <string name="settings_permissions">Revisar permisos y batería</string>
+    <string name="perm_all_ok">Todo está listo. Los avisos le llegarán a tiempo.</string>
+    <string name="settings_about">Acerca de A Tiempo</string>
+    <string name="about_version">Versión %1$s</string>
+    <string name="about_repo">Ver el código en GitHub</string>
+    <string name="about_body">A Tiempo es una app gratuita y de código abierto. Sus datos se guardan solo en este teléfono.</string>
+
     <!-- Notification channels (phone Settings → Notifications) -->
     <string name="channel_intake_name">Recordatorios de toma</string>
     <string name="channel_intake_desc">Le avisa a la hora de cada toma.</string>

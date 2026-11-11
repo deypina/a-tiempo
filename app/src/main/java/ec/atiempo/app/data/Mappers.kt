@@ -49,6 +49,15 @@ fun StockMovement.toEntity() = StockMovementEntity(
     createdAt = createdAt,
 )
 
+fun StockMovementEntity.toDomain() = StockMovement(
+    id = id,
+    medicationId = medicationId,
+    type = type,
+    delta = delta,
+    resultingStock = resultingStock,
+    createdAt = createdAt,
+)
+
 fun IntakeEventEntity.toDomain() = IntakeEvent(
     id = id,
     medicationId = medicationId,

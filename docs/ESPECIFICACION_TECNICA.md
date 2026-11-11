@@ -123,6 +123,11 @@ Registrar una compra siempre apaga los avisos, aunque el stock siga bajo (PRD F5
   - Registrar una compra cancela la alarma y la notificación. Corregir la cantidad por encima del umbral de aviso también quita la notificación.
   - Igual que las tomas: se guarda la hora armada; al reprogramar, si estaba vencida hace 2 horas o menos se avisa en ese momento, y si sigue pendiente a la hora configurada se vuelve a armar en el mismo momento (un reinicio borra las alarmas).
 - Si se edita un medicamento sin tocar el campo de cantidad, se conserva la cantidad de la base de datos, así una compra registrada desde la notificación mientras la pantalla estaba abierta no se pierde.
+- La hora de la alarma de repetición o "Recordar" también se guarda (en las mismas preferencias privadas de alarmas, no en Room), y Hoy la muestra como "Le recordaremos a las…". Se guarda antes de cambiar la toma a SNOOZED.
+- "Ya la tomé" desde Hoy hace lo mismo que desde la notificación. Si la alarma aún no sonó, primero crea la toma del día como PENDING; cuando la alarma suene, la encuentra TAKEN y no avisa. También quita el aviso "No confirmó su toma…".
+- "Deshacer" (solo tomas TAKEN): devuelve la cantidad, deja la toma PENDING y registra el movimiento UNDO. Si la hora de la toma ya pasó, se vuelve a recordar después de `snoozeMinutes`, como cualquier toma sin responder. Después se ajustan los avisos de compra con la cantidad nueva.
+- Al reprogramar tras un reinicio solo se vuelven a armar repeticiones de tomas cuya hora ya pasó: una toma futura (marcada antes y luego deshecha) espera a su alarma diaria.
+- Cambiar `urgentReminderHour` en Ajustes reprograma los avisos diarios de compra a la hora nueva.
 
 ### Permisos
 | Permiso | Motivo | Cómo |
@@ -159,6 +164,11 @@ Pantallas: Bienvenida (nombre + permisos + batería) · Hoy · Medicamentos (lis
 
 Navegación inferior con 3 pestañas grandes: **Hoy**, **Mis medicamentos**, **Ajustes**.
 
+- **Hoy:** las tomas del día de los medicamentos activos, en orden de hora, con su estado, la línea de cantidad y días, y el botón "Ya la tomé" o "Deshacer".
+- **Historial:** se abre con "Ver historial" en *Mis medicamentos*. Tomas, compras, correcciones y tomas deshechas salen de `StockMovement` (una toma deshecha sigue en el historial); las tomas "No confirmada" salen de `IntakeEvent`. Más recientes primero.
+- **Ajustes:** cada cambio se guarda al momento. `fontScale` multiplica el tamaño de letra del sistema (Grande ×1,15; Muy grande ×1,3), así ambos se suman.
+- **Acerca de:** versión (de la app instalada), texto `about_body`, aviso médico y botón al repositorio, que abre el navegador solo al tocarlo.
+
 Diseño: colores sobrios con un verde de acento para "tomada" y ámbar/rojo para avisos, siempre acompañados de ícono y texto (no solo color). Tema claro por defecto, respetando modo oscuro del sistema.
 
 ## 6. Respaldo
@@ -185,6 +195,7 @@ La app guarda datos de salud. Reglas que toda fase debe cumplir:
 
 **Datos y red**
 - Sin permisos de red. El manifiesto los elimina con `tools:node="remove"` por si una librería los agrega, y `scripts/check-no-internet.sh` hace fallar la compilación si el APK pide INTERNET, ACCESS_NETWORK_STATE o ACCESS_WIFI_STATE.
+- Los enlaces externos (por ahora solo el repositorio en "Acerca de") se abren con un Intent `ACTION_VIEW` hacia el navegador, y solo cuando la persona toca el botón. La app no se conecta a nada.
 - La base de datos y DataStore viven en el almacenamiento privado de la app. No escribir datos en almacenamiento compartido ni en logs (`Log.d` con nombres de medicamentos está prohibido en release).
 - Respaldo: solo base de datos y `datastore/`. En Android 12+ la copia en la nube exige cifrado de extremo a extremo (`disableIfNoEncryptionCapabilities`); en Android 9–11 se usa `requireFlags="clientSideEncryption"`.
 - Exportar e importar respaldo (v1.1): validar el JSON antes de escribir (tipos, rangos, stock ≥ 0) y hacerlo en una transacción; un archivo inválido no cambia nada.

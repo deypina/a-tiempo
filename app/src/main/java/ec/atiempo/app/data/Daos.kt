@@ -74,6 +74,13 @@ interface IntakeEventDao {
     @Query("SELECT * FROM intake_event WHERE status IN ('PENDING', 'SNOOZED') AND scheduledAt >= :since")
     suspend fun unansweredSince(since: Long): List<IntakeEventEntity>
 
+    /** Intakes of one day, for the "Hoy" screen. [end] is exclusive. */
+    @Query("SELECT * FROM intake_event WHERE scheduledAt >= :start AND scheduledAt < :end")
+    fun observeBetween(start: Long, end: Long): Flow<List<IntakeEventEntity>>
+
+    @Query("SELECT * FROM intake_event WHERE medicationId = :medicationId AND status = 'MISSED'")
+    fun observeMissed(medicationId: Long): Flow<List<IntakeEventEntity>>
+
     @Query("DELETE FROM intake_event WHERE medicationId = :medicationId")
     suspend fun deleteForMedication(medicationId: Long)
 }

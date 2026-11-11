@@ -8,6 +8,17 @@ object ReminderRules {
     const val DEFAULT_SNOOZE_MINUTES = 15
     const val DEFAULT_MAX_REPEATS = 3
 
+    /** Choices for "Recordar en X min" in Ajustes (docs/PRD.md F3). */
+    val SNOOZE_OPTIONS = listOf(5, 10, 15, 30)
+
+    /** A stored value outside the choices falls back to the default. */
+    fun snoozeMinutesOrDefault(value: Int?): Int =
+        value?.takeIf { it in SNOOZE_OPTIONS } ?: DEFAULT_SNOOZE_MINUTES
+
+    /** "Recordar" only works while the intake is still waiting for an answer. */
+    fun canSnooze(event: IntakeEvent): Boolean =
+        event.status == IntakeStatus.PENDING || event.status == IntakeStatus.SNOOZED
+
     /** A daily alarm missed by up to this long (phone off, force stop, late alarm) still reminds. */
     const val CATCH_UP_WINDOW_MS = 2 * 60 * 60 * 1000L
 

@@ -27,9 +27,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         val settings: Flow<Settings?> = container.settingsRepository.settings.map { it }
         setContent {
-            ATiempoTheme {
-                val current by settings.collectAsStateWithLifecycle(initialValue = null)
-                val loaded = current
+            val current by settings.collectAsStateWithLifecycle(initialValue = null)
+            val loaded = current
+            ATiempoTheme(fontScale = loaded?.fontSize?.scale ?: 1f) {
                 when {
                     // Brief blank frame while preferences load, so the welcome never flashes.
                     loaded == null -> Surface(Modifier.fillMaxSize()) { Box(Modifier.fillMaxSize()) }
