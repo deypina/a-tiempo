@@ -8,6 +8,8 @@ data class TodayIntake(
     val medication: Medication,
     val scheduleCount: Int,
     val schedule: Schedule,
+    /** Day of the list this intake belongs to. */
+    val date: LocalDate,
     val eventId: String,
     val status: IntakeStatus,
     val takenAt: Long?,
@@ -43,6 +45,7 @@ object TodayRules {
                         medication = item.medication,
                         scheduleCount = item.schedules.size,
                         schedule = schedule,
+                        date = date,
                         eventId = id,
                         status = status,
                         takenAt = event?.takenAt,

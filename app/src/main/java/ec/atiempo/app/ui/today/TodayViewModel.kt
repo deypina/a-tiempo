@@ -60,8 +60,9 @@ class TodayViewModel(
         refresh.value = Refresh(LocalDate.now(clock), refresh.value.count + 1)
     }
 
+    /** "Ya la tomé" for the intake on screen, on the day of the list (see TodayIntake.date). */
     fun onTaken(item: TodayIntake) {
-        viewModelScope.launch { reminders.onTakenToday(item.medication.id, item.schedule.id) }
+        viewModelScope.launch { reminders.onTakenToday(item.medication.id, item.schedule.id, item.date) }
     }
 
     fun onUndo(item: TodayIntake) {

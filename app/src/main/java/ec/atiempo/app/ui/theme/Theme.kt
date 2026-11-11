@@ -53,12 +53,18 @@ private val ATiempoTypography = BaseTypography.copy(
  */
 @Composable
 fun ATiempoTheme(fontScale: Float = 1f, content: @Composable () -> Unit) {
-    val density = LocalDensity.current
-    CompositionLocalProvider(LocalDensity provides Density(density.density, density.fontScale * fontScale)) {
+    val theme: @Composable () -> Unit = {
         MaterialTheme(
             colorScheme = if (isSystemInDarkTheme()) DarkColors else LightColors,
             typography = ATiempoTypography,
             content = content,
         )
     }
+    // At "Normal" the phone's own density is kept untouched (Android 14+ scales big fonts non-linearly).
+    if (fontScale == 1f) {
+        theme()
+        return
+    }
+    val density = LocalDensity.current
+    CompositionLocalProvider(LocalDensity provides Density(density.density, density.fontScale * fontScale), content = theme)
 }

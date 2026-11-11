@@ -14,6 +14,7 @@ import ec.atiempo.app.domain.TodayRules
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import java.time.Clock
+import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZonedDateTime
 
@@ -109,10 +110,10 @@ class ReminderManager(
      * "Ya la tomé" from Hoy (C-22). Works the same as from the notification, also before the
      * reminder rang: the intake of today is created first, and the alarm later finds it taken.
      */
-    suspend fun onTakenToday(medicationId: Long, scheduleId: Long) = lock.withLock {
+    suspend fun onTakenToday(medicationId: Long, scheduleId: Long, date: LocalDate) = lock.withLock {
         val target = intakes.reminderTarget(medicationId, scheduleId) ?: return@withLock
-        val today = ZonedDateTime.now(clock).toLocalDate()
-        val eventId = intakes.ensureEvent(target, TodayRules.scheduledAt(today, target.schedule.time, clock.zone))
+        // The day of the list on screen, so a list left open past midnight never marks the wrong day.
+        val eventId = intakes.ensureEvent(target, TodayRules.scheduledAt(date, target.schedule.time, clock.zone))
         // A late confirmation also clears the "No confirmó su toma" notice.
         notifier.cancelAllFor(scheduleId)
         take(eventId)

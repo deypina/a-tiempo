@@ -74,7 +74,8 @@ object InventoryRules {
                 stock = newStock,
                 restockPending = if (aboveWarn) false else medication.restockPending,
             ),
-            event = event.copy(status = IntakeStatus.PENDING, takenAt = null, quantity = 0.0),
+            // A fresh reminder cycle: the earlier unanswered repeats do not count anymore.
+            event = event.copy(status = IntakeStatus.PENDING, snoozeCount = 0, takenAt = null, quantity = 0.0),
             movement = movement(medication.id, MovementType.UNDO, event.quantity, newStock, now),
             stopUrgentReminder = newStock > medication.urgentThreshold,
             dismissPurchaseAlerts = aboveWarn,

@@ -280,4 +280,18 @@ class InventoryRulesTest {
     fun intakeEventId_combinesMedicationScheduleAndDate() {
         assertEquals("7-1-20261109", InventoryRules.intakeEventId(7, 1, LocalDate.of(2026, 11, 9)))
     }
+
+    @Test
+    fun undoIntake_startsAFreshReminderCycle() {
+        val medication = Medication(id = 1, name = "Gabapentina", dosePerIntake = 1.0, stock = 9.0, createdAt = 0)
+        val taken = IntakeEvent(
+            id = "1-1-20261111", medicationId = 1, scheduleId = 1, scheduledAt = 0,
+            status = IntakeStatus.TAKEN, snoozeCount = 3, takenAt = 5, quantity = 1.0,
+        )
+
+        val undone = InventoryRules.undoIntake(medication, taken, 10)!!
+
+        org.junit.Assert.assertEquals(0, undone.event.snoozeCount)
+        org.junit.Assert.assertEquals(IntakeStatus.PENDING, undone.event.status)
+    }
 }
