@@ -191,6 +191,7 @@ Diseño: colores sobrios con un verde de acento para "tomada" y ámbar/rojo para
 - Instrumentadas mínimas: DAO de Room.
 - De punta a punta (`app/src/androidTest/.../e2e`): la app real en un emulador Android 15 dentro de GitHub Actions (trabajo `e2e`, `./gradlew connectedDebugAndroidTest`). Cada prueba empieza con la app recién instalada (Test Orchestrator con `clearPackageData`). Cubren bienvenida, agregar medicamento, "Ya la tomé" y "Deshacer" desde Hoy, compra e historial. Una versión (etiqueta `v*`) solo se publica si pasan. Siguen siendo manuales: que la alarma suene a la hora, la pantalla bloqueada y el tamaño de letra del teléfono.
 - Las librerías de prueba (`androidTestImplementation`) no entran en el APK de la app.
+- El APK de prueba de GitHub Actions se firma siempre con la misma llave de depuración (secreto `DEBUG_KEYSTORE_BASE64`), para instalarlo encima del anterior sin perder datos. No es la llave de las versiones publicadas.
 - Manuales: `docs/CASOS_DE_PRUEBA.md`.
 
 ## 9. Seguridad y privacidad
