@@ -12,7 +12,7 @@ App Android gratuita y de código abierto que le recuerda a una persona tomar su
 
 ## Para familias: cómo instalarla
 
-1. En el teléfono Android, abra la sección **Releases** de este repositorio y descargue el archivo `A-Tiempo-vX.X.X.apk`.
+1. En el teléfono Android, abra la sección **Releases** de este repositorio y descargue el archivo `A-Tiempo.apk`.
 2. Ábralo. Si Android pregunta, permita "instalar apps de origen desconocido" para el navegador.
 3. Abra A Tiempo, escriba el nombre o apodo de la persona y acepte los permisos.
 4. **Importante en Samsung y otras marcas:** Ajustes → Aplicaciones → A Tiempo → Batería → **Sin restricciones**. Si no, los avisos pueden llegar tarde.

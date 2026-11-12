@@ -145,17 +145,18 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
           ./gradlew assembleRelease
-          cp app/build/outputs/apk/release/app-release.apk "A-Tiempo-${GITHUB_REF_NAME}.apk"
+          # Fixed name: the download page links to releases/latest/download/A-Tiempo.apk.
+          cp app/build/outputs/apk/release/app-release.apk A-Tiempo.apk
 
       - name: Borrar llave de firma del equipo de compilación
         if: always()
         run: rm -f "$RUNNER_TEMP/release.keystore"
 
       - name: Verificar que la app no pide internet
-        run: ./scripts/check-no-internet.sh "A-Tiempo-${GITHUB_REF_NAME}.apk"
+        run: ./scripts/check-no-internet.sh A-Tiempo.apk
 
       - name: Publicar en Releases
         uses: softprops/action-gh-release@8a0cd651e5b2365bd640854a3fa5dfc70e4875f3 # v3.0.4
         with:
-          files: A-Tiempo-*.apk
+          files: A-Tiempo.apk
           generate_release_notes: true
