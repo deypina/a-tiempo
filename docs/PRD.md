@@ -107,7 +107,7 @@ Por cada medicamento:
 - Tamaño de letra: Normal / Grande / Muy grande.
 - Reconfigurar permisos y ahorro de batería.
 - Copia de seguridad: exportar / importar archivo (v1.1).
-- Acerca de: versión, aviso de que la app no reemplaza indicaciones médicas, enlace al repositorio.
+- Acerca de: versión, autora, botón "Enviar mi opinión" (abre el correo del teléfono), enlaces a las redes de la autora y al repositorio, y aviso de que la app no reemplaza indicaciones médicas.
 
 ## 7. Requisitos no funcionales
 

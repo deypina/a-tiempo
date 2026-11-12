@@ -80,6 +80,18 @@ class MedicationJourneyTest {
         waitFor(hasText(str(R.string.history_purchase, str(R.string.qty_pill_other, "20"))))
     }
 
+    @Test
+    fun about_showsAuthorFeedbackAndDisclaimer() {
+        completeWelcome("Rosa")
+
+        tapTab(R.string.tab_settings)
+        tap(str(R.string.settings_about))
+        waitFor(hasText(str(R.string.about_credit)))
+        waitFor(hasText(str(R.string.about_feedback)) and hasClickAction())
+        waitFor(hasText(str(R.string.about_repo)) and hasClickAction())
+        waitFor(hasText(str(R.string.about_disclaimer)))
+    }
+
     /** Types the name and answers "Ahora no" to every permission the emulator still lacks. */
     private fun completeWelcome(name: String) {
         waitFor(hasText(str(R.string.welcome_title)))

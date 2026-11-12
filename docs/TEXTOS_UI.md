@@ -169,8 +169,17 @@ Reglas de estilo:
 | perm_all_ok | Todo está listo. Los avisos le llegarán a tiempo. |
 | settings_about | Acerca de A Tiempo |
 | about_version | Versión {v} |
-| about_repo | Ver el código en GitHub |
-| about_body | A Tiempo es una app gratuita y de código abierto. Sus datos se guardan solo en este teléfono. |
+| about_credit | Hecha con cariño por Dey Piña · @deykpina |
+| about_feedback | Enviar mi opinión |
+| about_feedback_subject | [A Tiempo] Mi opinión |
+| about_feedback_body | (dos líneas en blanco) Versión de la app: {v} · Android: {a} · Teléfono: {t} |
+| about_no_email | No encontramos una app de correo en este teléfono. Puede escribirle a Dey por Instagram: @deykpina. |
+| about_instagram | Instagram |
+| about_linkedin | LinkedIn |
+| about_x | X |
+| about_facebook | Facebook |
+| about_repo | Código en GitHub |
+| about_disclaimer | A Tiempo es una herramienta de apoyo y no reemplaza las indicaciones de su médico. Sus datos se guardan solo en este teléfono. |
 | warn_notif_denied | Los avisos están apagados y no le llegarán los recordatorios. Toque aquí para activarlos. |
 | warn_exact_denied | Los avisos podrían llegar con unos minutos de retraso. Toque aquí para corregirlo. |
 | warn_battery | Su teléfono podría retrasar los avisos. Toque aquí para corregirlo. |

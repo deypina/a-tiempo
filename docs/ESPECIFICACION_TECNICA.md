@@ -167,7 +167,9 @@ Navegación inferior con 3 pestañas grandes: **Hoy**, **Mis medicamentos**, **A
 - **Hoy:** las tomas del día de los medicamentos activos, en orden de hora, con su estado, la línea de cantidad y días, y el botón "Ya la tomé" o "Deshacer".
 - **Historial:** se abre con "Ver historial" en *Mis medicamentos*. Tomas, compras, correcciones y tomas deshechas salen de `StockMovement` (una toma deshecha sigue en el historial); las tomas "No confirmada" salen de `IntakeEvent`. Más recientes primero.
 - **Ajustes:** cada cambio se guarda al momento. `fontScale` multiplica el tamaño de letra del sistema (Grande ×1,15; Muy grande ×1,3), así ambos se suman.
-- **Acerca de:** versión (de la app instalada), texto `about_body`, aviso médico y botón al repositorio, que abre el navegador solo al tocarlo.
+- **Acerca de:** en este orden: nombre y versión (de la app instalada), `about_credit`, botón "Enviar mi opinión", fila de enlaces (Instagram, LinkedIn, X, Facebook, GitHub) y `about_disclaimer`.
+  - "Enviar mi opinión" abre la app de correo con `ACTION_SENDTO` (`mailto:deykpina.proyectos@gmail.com`), asunto `about_feedback_subject` y el cuerpo `about_feedback_body` con versión de la app, versión de Android y marca y modelo del teléfono. Nada se envía solo: la persona ve el borrador y decide. Sin app de correo, se muestra `about_no_email`.
+  - Redes en `deykpina`; repositorio en `github.com/deypina/a-tiempo`.
 
 Diseño: colores sobrios con un verde de acento para "tomada" y ámbar/rojo para avisos, siempre acompañados de ícono y texto (no solo color). Tema claro por defecto, respetando modo oscuro del sistema.
 
@@ -197,7 +199,7 @@ La app guarda datos de salud. Reglas que toda fase debe cumplir:
 
 **Datos y red**
 - Sin permisos de red. El manifiesto los elimina con `tools:node="remove"` por si una librería los agrega, y `scripts/check-no-internet.sh` hace fallar la compilación si el APK pide INTERNET, ACCESS_NETWORK_STATE o ACCESS_WIFI_STATE.
-- Los enlaces externos (por ahora solo el repositorio en "Acerca de") se abren con un Intent `ACTION_VIEW` hacia el navegador, y solo cuando la persona toca el botón. La app no se conecta a nada.
+- Los enlaces externos de "Acerca de" (redes y repositorio) se abren con un Intent `ACTION_VIEW`, y el correo de opinión con `ACTION_SENDTO`, siempre solo cuando la persona toca el botón. La app no se conecta a nada y no envía datos por su cuenta: el correo queda como borrador en la app de correo.
 - La base de datos y DataStore viven en el almacenamiento privado de la app. No escribir datos en almacenamiento compartido ni en logs (`Log.d` con nombres de medicamentos está prohibido en release).
 - Respaldo: solo base de datos y `datastore/`. En Android 12+ la copia en la nube exige cifrado de extremo a extremo (`disableIfNoEncryptionCapabilities`); en Android 9–11 se usa `requireFlags="clientSideEncryption"`.
 - Exportar e importar respaldo (v1.1): validar el JSON antes de escribir (tipos, rangos, stock ≥ 0) y hacerlo en una transacción; un archivo inválido no cambia nada.

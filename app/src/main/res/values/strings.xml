@@ -148,8 +148,17 @@
     <string name="perm_all_ok">Todo está listo. Los avisos le llegarán a tiempo.</string>
     <string name="settings_about">Acerca de A Tiempo</string>
     <string name="about_version">Versión %1$s</string>
-    <string name="about_repo">Ver el código en GitHub</string>
-    <string name="about_body">A Tiempo es una app gratuita y de código abierto. Sus datos se guardan solo en este teléfono.</string>
+    <string name="about_credit">Hecha con cariño por Dey Piña · @deykpina</string>
+    <string name="about_feedback">Enviar mi opinión</string>
+    <string name="about_feedback_subject">[A Tiempo] Mi opinión</string>
+    <string name="about_feedback_body">\n\n\nVersión de la app: %1$s · Android: %2$s · Teléfono: %3$s</string>
+    <string name="about_no_email">No encontramos una app de correo en este teléfono. Puede escribirle a Dey por Instagram: @deykpina.</string>
+    <string name="about_instagram" translatable="false">Instagram</string>
+    <string name="about_linkedin" translatable="false">LinkedIn</string>
+    <string name="about_x" translatable="false">X</string>
+    <string name="about_facebook" translatable="false">Facebook</string>
+    <string name="about_repo">Código en GitHub</string>
+    <string name="about_disclaimer">A Tiempo es una herramienta de apoyo y no reemplaza las indicaciones de su médico. Sus datos se guardan solo en este teléfono.</string>
 
     <!-- Notification channels (phone Settings → Notifications) -->
     <string name="channel_intake_name">Recordatorios de toma</string>
