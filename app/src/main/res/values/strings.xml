@@ -156,7 +156,6 @@
     <string name="about_instagram" translatable="false">Instagram</string>
     <string name="about_linkedin" translatable="false">LinkedIn</string>
     <string name="about_x" translatable="false">X</string>
-    <string name="about_facebook" translatable="false">Facebook</string>
     <string name="about_repo">Código en GitHub</string>
     <string name="about_disclaimer">A Tiempo es una herramienta de apoyo y no reemplaza las indicaciones de su médico. Sus datos se guardan solo en este teléfono.</string>
 

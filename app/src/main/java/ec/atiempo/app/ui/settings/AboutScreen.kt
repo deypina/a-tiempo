@@ -43,13 +43,11 @@ private const val REPO_URL = "https://github.com/deypina/a-tiempo"
 private const val INSTAGRAM_URL = "https://instagram.com/deykpina"
 private const val LINKEDIN_URL = "https://www.linkedin.com/in/deykpina"
 private const val X_URL = "https://x.com/deykpina"
-private const val FACEBOOK_URL = "https://facebook.com/deykpina"
 
 private val links = listOf(
     R.string.about_instagram to INSTAGRAM_URL,
     R.string.about_linkedin to LINKEDIN_URL,
     R.string.about_x to X_URL,
-    R.string.about_facebook to FACEBOOK_URL,
     R.string.about_repo to REPO_URL,
 )
 

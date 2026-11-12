@@ -177,7 +177,6 @@ Reglas de estilo:
 | about_instagram | Instagram |
 | about_linkedin | LinkedIn |
 | about_x | X |
-| about_facebook | Facebook |
 | about_repo | Código en GitHub |
 | about_disclaimer | A Tiempo es una herramienta de apoyo y no reemplaza las indicaciones de su médico. Sus datos se guardan solo en este teléfono. |
 | warn_notif_denied | Los avisos están apagados y no le llegarán los recordatorios. Toque aquí para activarlos. |

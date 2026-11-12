@@ -167,7 +167,7 @@ Navegación inferior con 3 pestañas grandes: **Hoy**, **Mis medicamentos**, **A
 - **Hoy:** las tomas del día de los medicamentos activos, en orden de hora, con su estado, la línea de cantidad y días, y el botón "Ya la tomé" o "Deshacer".
 - **Historial:** se abre con "Ver historial" en *Mis medicamentos*. Tomas, compras, correcciones y tomas deshechas salen de `StockMovement` (una toma deshecha sigue en el historial); las tomas "No confirmada" salen de `IntakeEvent`. Más recientes primero.
 - **Ajustes:** cada cambio se guarda al momento. `fontScale` multiplica el tamaño de letra del sistema (Grande ×1,15; Muy grande ×1,3), así ambos se suman.
-- **Acerca de:** en este orden: nombre y versión (de la app instalada), `about_credit`, botón "Enviar mi opinión", fila de enlaces (Instagram, LinkedIn, X, Facebook, GitHub) y `about_disclaimer`.
+- **Acerca de:** en este orden: nombre y versión (de la app instalada), `about_credit`, botón "Enviar mi opinión", fila de enlaces (Instagram, LinkedIn, X, GitHub) y `about_disclaimer`.
   - "Enviar mi opinión" abre la app de correo con `ACTION_SENDTO` (`mailto:deykpina.proyectos@gmail.com`), asunto `about_feedback_subject` y el cuerpo `about_feedback_body` con versión de la app, versión de Android y marca y modelo del teléfono. Nada se envía solo: la persona ve el borrador y decide. Sin app de correo, se muestra `about_no_email`.
   - Redes en `deykpina`; repositorio en `github.com/deypina/a-tiempo`.
 
