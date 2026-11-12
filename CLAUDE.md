@@ -45,6 +45,7 @@ Si encuentras una contradicción entre documentos, pregunta antes de decidir.
 - Compilar: `./gradlew assembleDebug`
 - Pruebas unitarias: `./gradlew testDebugUnitTest`
 - Lint: `./gradlew lintDebug`
+- Pruebas de punta a punta (necesitan emulador o teléfono conectado): `./gradlew connectedDebugAndroidTest`
 - APK resultante: `app/build/outputs/apk/debug/app-debug.apk`
 
 ## Git
