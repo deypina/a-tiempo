@@ -171,7 +171,12 @@ Navegación inferior con 3 pestañas grandes: **Hoy**, **Mis medicamentos**, **A
   - "Enviar mi opinión" abre la app de correo con `ACTION_SENDTO` (`mailto:deykpina.proyectos@gmail.com`), asunto `about_feedback_subject` y el cuerpo `about_feedback_body` con versión de la app, versión de Android y marca y modelo del teléfono. Nada se envía solo: la persona ve el borrador y decide. Sin app de correo, se muestra `about_no_email`.
   - Redes en `deykpina`; repositorio en `github.com/deypina/a-tiempo`.
 
-Diseño: colores sobrios con un verde de acento para "tomada" y ámbar/rojo para avisos, siempre acompañados de ícono y texto (no solo color). Tema claro por defecto, respetando modo oscuro del sistema.
+Diseño "cuaderno cálido" (`ui/theme/Theme.kt` y `ui/common/Paper.kt`):
+- Fondo color papel (`#F5EFE3`; de noche `#17140F`), tinta casi negra y un solo acento verde botica (`#2E5A44`) para botones principales y "tomada". Los avisos van en rojo ladrillo, siempre con texto (no solo color).
+- Tarjetas del color del papel con una línea de 1 dp, sin sombras. Esquinas de 6 a 8 dp, nada de botones en forma de píldora. Las pantallas usan `Button`, `OutlinedButton` y `Card` de `ui/common/Paper.kt`, no los de Material.
+- Títulos con la letra serif del teléfono (no se descarga ninguna fuente). El resto, sans de 18 sp.
+- En Hoy, la hora va en el margen izquierdo de cada toma, como en una libreta.
+- Tema claro por defecto, respetando el modo oscuro del sistema.
 
 ## 6. Respaldo
 

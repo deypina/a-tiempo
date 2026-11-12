@@ -2,10 +2,13 @@ package ec.atiempo.app.ui
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
@@ -74,32 +77,36 @@ fun ATiempoRoot() {
 
     Scaffold(
         bottomBar = {
-            NavigationBar {
-                Tab.entries.forEach { tab ->
-                    // "meds/edit..." also belongs to the Meds tab.
-                    val selected = currentDestination?.hierarchy?.any {
-                        it.route == tab.route || it.route?.startsWith("${tab.route}/") == true
-                    } == true
-                    NavigationBarItem(
-                        selected = selected,
-                        onClick = {
-                            navController.navigate(tab.route) {
-                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        // The label below already names the tab for TalkBack.
-                        icon = {
-                            Icon(
-                                painter = painterResource(tab.icon),
-                                contentDescription = null,
-                                modifier = Modifier.size(28.dp),
-                            )
-                        },
-                        label = { Text(stringResource(tab.label)) },
-                        modifier = Modifier.heightIn(min = 56.dp),
-                    )
+            // A hairline over the bar, as in a notebook, instead of a tinted panel.
+            Column {
+                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                NavigationBar(containerColor = MaterialTheme.colorScheme.background, tonalElevation = 0.dp) {
+                    Tab.entries.forEach { tab ->
+                        // "meds/edit..." also belongs to the Meds tab.
+                        val selected = currentDestination?.hierarchy?.any {
+                            it.route == tab.route || it.route?.startsWith("${tab.route}/") == true
+                        } == true
+                        NavigationBarItem(
+                            selected = selected,
+                            onClick = {
+                                navController.navigate(tab.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            // The label below already names the tab for TalkBack.
+                            icon = {
+                                Icon(
+                                    painter = painterResource(tab.icon),
+                                    contentDescription = null,
+                                    modifier = Modifier.size(28.dp),
+                                )
+                            },
+                            label = { Text(stringResource(tab.label)) },
+                            modifier = Modifier.heightIn(min = 56.dp),
+                        )
+                    }
                 }
             }
         },

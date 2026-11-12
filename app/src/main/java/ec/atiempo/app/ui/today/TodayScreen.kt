@@ -2,17 +2,18 @@ package ec.atiempo.app.ui.today
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
+import ec.atiempo.app.ui.common.Button
+import ec.atiempo.app.ui.common.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
+import ec.atiempo.app.ui.common.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -34,7 +35,6 @@ import ec.atiempo.app.domain.TodayIntake
 import ec.atiempo.app.reminders.ReminderPermissions
 import ec.atiempo.app.ui.common.AppViewModelFactory
 import ec.atiempo.app.ui.common.formatTime
-import ec.atiempo.app.ui.common.joinWithDots
 import ec.atiempo.app.ui.common.pillQuantity
 import ec.atiempo.app.ui.common.stockLine
 
@@ -106,24 +106,31 @@ private fun IntakeCard(item: TodayIntake, onTaken: () -> Unit, onUndo: () -> Uni
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Text(med.name, style = MaterialTheme.typography.titleLarge)
-            Text(
-                joinWithDots(listOf(formatTime(item.schedule.time), pillQuantity(med.dosePerIntake))),
-                style = MaterialTheme.typography.bodyLarge,
-            )
-            Text(
-                statusText(item),
-                style = MaterialTheme.typography.bodyLarge,
-                color = when (item.status) {
-                    IntakeStatus.TAKEN -> MaterialTheme.colorScheme.primary
-                    IntakeStatus.MISSED -> MaterialTheme.colorScheme.error
-                    else -> MaterialTheme.colorScheme.onSurface
-                },
-            )
-            Text(
-                stockLine(med.stock, InventoryRules.daysLeft(med, item.scheduleCount)),
-                style = MaterialTheme.typography.bodyLarge,
-            )
+            // Notebook layout: the hour in the margin, the details beside it.
+            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                Text(formatTime(item.schedule.time), style = MaterialTheme.typography.headlineSmall)
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Text(med.name, style = MaterialTheme.typography.titleLarge)
+                    Text(pillQuantity(med.dosePerIntake), style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        statusText(item),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = when (item.status) {
+                            IntakeStatus.TAKEN -> MaterialTheme.colorScheme.primary
+                            IntakeStatus.MISSED -> MaterialTheme.colorScheme.error
+                            else -> MaterialTheme.colorScheme.onSurface
+                        },
+                    )
+                    Text(
+                        stockLine(med.stock, InventoryRules.daysLeft(med, item.scheduleCount)),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
             if (item.canTake) {
                 Button(onClick = onTaken, modifier = ActionModifier) {
                     Text(stringResource(R.string.btn_taken))
