@@ -86,11 +86,13 @@ jobs:
           script: ./gradlew connectedDebugAndroidTest
 
       - name: Subir informe de las pruebas
-        if: failure()
+        if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: e2e-report
-          path: app/build/reports/androidTests/
+          path: |
+            app/build/reports/androidTests/
+            app/build/outputs/androidTest-results/connected/
 
   # --- Only when publishing a version (tag v*) ---
   release:
