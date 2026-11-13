@@ -2,14 +2,15 @@ package ec.atiempo.app.data
 
 import android.content.Context
 import androidx.room.Room
-import androidx.room.testing.MigrationTestHelper
 import androidx.sqlite.db.SupportSQLiteDatabase
+import androidx.sqlite.db.SupportSQLiteOpenHelper
+import androidx.sqlite.db.framework.FrameworkSQLiteOpenHelperFactory
+import org.json.JSONObject
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import kotlinx.coroutines.runBlocking
 import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 
@@ -21,12 +22,6 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 class MigrationTest {
-
-    @get:Rule
-    val helper = MigrationTestHelper(
-        InstrumentationRegistry.getInstrumentation(),
-        ATiempoDatabase::class.java,
-    )
 
     private val context: Context = InstrumentationRegistry.getInstrumentation().targetContext
 
@@ -51,7 +46,7 @@ class MigrationTest {
             OldMedication(id = 10, name = "Aspirina", stock = 1.5, note = null),
         )
 
-        helper.createDatabase(DB_NAME, 1).apply {
+        createVersion1Database().apply {
             medications.forEach { insertOldMedication(it) }
             execSQL("INSERT INTO `schedule` (`id`, `medicationId`, `hour`, `minute`) VALUES (1, 2, 8, 0)")
             execSQL("INSERT INTO `schedule` (`id`, `medicationId`, `hour`, `minute`) VALUES (2, 2, 20, 30)")
@@ -110,7 +105,7 @@ class MigrationTest {
 
     @Test
     fun migrate1To2_emptyDatabase_opens() {
-        helper.createDatabase(DB_NAME, 1).close()
+        createVersion1Database().close()
 
         val db = Room.databaseBuilder(context, ATiempoDatabase::class.java, DB_NAME)
             .addMigrations(MIGRATION_1_2)
@@ -121,6 +116,39 @@ class MigrationTest {
             listOf(0L),
             db.openHelper.writableDatabase.queryRows("SELECT COUNT(*) FROM `medication`") { getLong(0) },
         )
+    }
+
+    /**
+     * Builds the version 1 database exactly as Room created it, from the exported schema
+     * (tables, indices and the room_master_table identity hash). Room's MigrationTestHelper does
+     * the same, but its kotlinx-serialization clashes with the app's version at runtime.
+     */
+    private fun createVersion1Database(): SupportSQLiteDatabase {
+        val json = InstrumentationRegistry.getInstrumentation().context.assets
+            .open("ec.atiempo.app.data.ATiempoDatabase/1.json").bufferedReader().use { it.readText() }
+        val schema = JSONObject(json).getJSONObject("database")
+        val config = SupportSQLiteOpenHelper.Configuration.builder(context)
+            .name(DB_NAME)
+            .callback(object : SupportSQLiteOpenHelper.Callback(1) {
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    val entities = schema.getJSONArray("entities")
+                    for (i in 0 until entities.length()) {
+                        val entity = entities.getJSONObject(i)
+                        val table = entity.getString("tableName")
+                        db.execSQL(entity.getString("createSql").replace("\${TABLE_NAME}", table))
+                        val indices = entity.optJSONArray("indices") ?: continue
+                        for (j in 0 until indices.length()) {
+                            db.execSQL(indices.getJSONObject(j).getString("createSql").replace("\${TABLE_NAME}", table))
+                        }
+                    }
+                    val setup = schema.getJSONArray("setupQueries")
+                    for (i in 0 until setup.length()) db.execSQL(setup.getString(i))
+                }
+
+                override fun onUpgrade(db: SupportSQLiteDatabase, oldVersion: Int, newVersion: Int) = Unit
+            })
+            .build()
+        return FrameworkSQLiteOpenHelperFactory().create(config).writableDatabase
     }
 
     private data class OldMedication(val id: Long, val name: String, val stock: Double, val note: String?)

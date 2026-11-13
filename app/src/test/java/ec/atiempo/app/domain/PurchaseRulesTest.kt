@@ -10,6 +10,7 @@ class PurchaseRulesTest {
 
     private fun med(stock: Double, pending: Boolean = true, active: Boolean = true) = Medication(
         id = 1,
+        colorKey = "azul",
         name = "Gabapentina",
         dosePerIntake = 1.0,
         stock = stock,
