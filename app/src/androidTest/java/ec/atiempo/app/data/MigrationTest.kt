@@ -98,7 +98,8 @@ class MigrationTest {
 
         // The migrated rows read back through the app's own DAO and mapper.
         val gabapentina = runBlocking { db.medicationDao().getWithSchedules(2) }!!.toDomain()
-        assertEquals("rosa", gabapentina.medication.colorKey)
+        // Id 2 is the lowest id, so it gets the first color.
+        assertEquals("azul", gabapentina.medication.colorKey)
         assertEquals(30.0, gabapentina.medication.stock, 0.0)
         assertEquals(2, gabapentina.schedules.size)
     }
