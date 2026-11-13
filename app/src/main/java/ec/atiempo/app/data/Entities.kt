@@ -1,5 +1,6 @@
 package ec.atiempo.app.data
 
+import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.ForeignKey
@@ -21,6 +22,8 @@ data class MedicationEntity(
     val active: Boolean,
     val restockPending: Boolean,
     val createdAt: Long,
+    // Added in database version 2 (MIGRATION_1_2). The default must match the migration's SQL.
+    @ColumnInfo(defaultValue = "azul") val colorKey: String,
 )
 
 @Entity(

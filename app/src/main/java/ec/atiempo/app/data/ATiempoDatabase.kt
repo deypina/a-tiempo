@@ -16,7 +16,7 @@ import androidx.room.RoomDatabase
         IntakeEventEntity::class,
         StockMovementEntity::class,
     ],
-    version = 1,
+    version = 2,
     exportSchema = true,
 )
 abstract class ATiempoDatabase : RoomDatabase() {
@@ -29,6 +29,9 @@ abstract class ATiempoDatabase : RoomDatabase() {
         private const val NAME = "a_tiempo.db"
 
         fun build(context: Context): ATiempoDatabase =
-            Room.databaseBuilder(context, ATiempoDatabase::class.java, NAME).build()
+            Room.databaseBuilder(context, ATiempoDatabase::class.java, NAME)
+                // Every version bump needs its Migration here. Never fallbackToDestructiveMigration.
+                .addMigrations(MIGRATION_1_2)
+                .build()
     }
 }

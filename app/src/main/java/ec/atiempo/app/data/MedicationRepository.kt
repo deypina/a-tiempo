@@ -3,6 +3,7 @@ package ec.atiempo.app.data
 import androidx.room.withTransaction
 import ec.atiempo.app.domain.InventoryRules
 import ec.atiempo.app.domain.Medication
+import ec.atiempo.app.domain.MedicationColors
 import ec.atiempo.app.domain.MedicationInput
 import ec.atiempo.app.domain.MedicationWithSchedules
 import ec.atiempo.app.domain.Schedule
@@ -34,14 +35,25 @@ class MedicationRepository(
 
     suspend fun allMedications(): List<Medication> = medicationDao.getAll().map { it.toDomain() }
 
+    /** Colors of every medication except [exceptId], to preselect the first free one. */
+    suspend fun usedColors(exceptId: Long? = null): List<String> =
+        medicationDao.getAll().filter { it.id != exceptId }.map { it.colorKey }
+
     /** [alert] is set when a corrected count crossed a purchase threshold going down. */
     data class SaveResult(val id: Long, val alert: StockAlert?)
 
     /**
      * Creates or updates a medication. With [keepStock] the count in the database is kept,
      * so a purchase registered while the edit screen was open is not overwritten.
+     * [colorKey] is normalized, so an unknown key is stored as the first palette color.
      */
-    suspend fun saveMedication(id: Long?, input: MedicationInput, keepStock: Boolean = false): SaveResult = db.withTransaction {
+    suspend fun saveMedication(
+        id: Long?,
+        input: MedicationInput,
+        colorKey: String,
+        keepStock: Boolean = false,
+    ): SaveResult = db.withTransaction {
+        val color = MedicationColors.normalize(colorKey)
         val now = clock.millis()
         val existing = id?.let { medicationDao.get(it) }?.toDomain()
 
@@ -56,6 +68,7 @@ class MedicationRepository(
                     urgentThreshold = input.urgentThreshold,
                     note = input.note,
                     createdAt = now,
+                    colorKey = color,
                 ).toEntity(),
             )
         } else {
@@ -76,6 +89,7 @@ class MedicationRepository(
                     warnThreshold = input.warnThreshold,
                     urgentThreshold = input.urgentThreshold,
                     note = input.note,
+                    colorKey = color,
                 ).toEntity(),
             )
             existing.id

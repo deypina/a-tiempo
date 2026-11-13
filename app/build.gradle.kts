@@ -64,6 +64,11 @@ android {
         abortOnError = true
         checkReleaseBuilds = true
     }
+
+    // MigrationTestHelper reads the exported schemas (app/schemas) as test assets.
+    sourceSets {
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    }
 }
 
 // Room writes the database schema here so future migrations can be checked.
@@ -97,6 +102,7 @@ dependencies {
     androidTestImplementation(libs.androidx.test.runner)
     androidTestImplementation(libs.androidx.test.rules)
     androidTestImplementation(libs.androidx.test.ext.junit)
+    androidTestImplementation(libs.androidx.room.testing)
     androidTestUtil(libs.androidx.test.orchestrator)
     androidTestUtil(libs.androidx.test.services)
 }

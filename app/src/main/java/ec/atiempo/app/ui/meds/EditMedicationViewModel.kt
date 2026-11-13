@@ -6,6 +6,7 @@ import androidx.lifecycle.viewModelScope
 import ec.atiempo.app.data.MedicationRepository
 import ec.atiempo.app.domain.DoseTime
 import ec.atiempo.app.domain.Medication
+import ec.atiempo.app.domain.MedicationColors
 import ec.atiempo.app.domain.MedicationError
 import ec.atiempo.app.domain.MedicationForm
 import ec.atiempo.app.domain.MedicationValidator
@@ -25,6 +26,8 @@ data class EditMedicationUiState(
     val loading: Boolean = false,
     val isNew: Boolean = true,
     val name: String = "",
+    /** Key from [MedicationColors.KEYS]. New medications get the first free one. */
+    val colorKey: String = MedicationColors.DEFAULT,
     /** Selected shortcut, or null when "Otra cantidad" is used. */
     val doseShortcut: Double? = 1.0,
     val doseOther: String = "",
@@ -54,8 +57,16 @@ class EditMedicationViewModel(
     private val _state = MutableStateFlow(EditMedicationUiState(loading = medicationId != null))
     val state: StateFlow<EditMedicationUiState> = _state.asStateFlow()
 
+    /** Once the person taps a color, the preselection must not overwrite it. */
+    private var colorChosen = false
+
     init {
-        if (medicationId != null) load(medicationId)
+        if (medicationId != null) load(medicationId) else preselectColor()
+    }
+
+    private fun preselectColor() = viewModelScope.launch {
+        val free = MedicationColors.firstFreeColor(repository.usedColors())
+        if (!colorChosen) _state.update { it.copy(colorKey = free) }
     }
 
     private fun load(id: Long) = viewModelScope.launch {
@@ -71,6 +82,7 @@ class EditMedicationViewModel(
                 loading = false,
                 isNew = false,
                 name = med.name,
+                colorKey = MedicationColors.normalize(med.colorKey),
                 doseShortcut = med.dosePerIntake.takeIf { isShortcut },
                 doseOther = if (isShortcut) "" else Quantity.format(med.dosePerIntake),
                 times = item.schedules.map { s -> s.time },
@@ -86,6 +98,11 @@ class EditMedicationViewModel(
 
     fun onNameChange(value: String) =
         _state.update { it.copy(name = value.take(MedicationValidator.MAX_NAME_LENGTH)) }
+
+    fun onColorChange(key: String) {
+        colorChosen = true
+        _state.update { it.copy(colorKey = MedicationColors.normalize(key)) }
+    }
 
     fun onDoseShortcut(value: Double) = _state.update { it.copy(doseShortcut = value) }
     fun onDoseOtherSelected() = _state.update { it.copy(doseShortcut = null) }
@@ -123,7 +140,7 @@ class EditMedicationViewModel(
                     val before = medicationId?.let { repository.scheduleIds(it) }.orEmpty()
                     // A purchase registered while this screen was open must not be undone.
                     val keepStock = !current.isNew && current.stock == current.loadedStock
-                    val saved = repository.saveMedication(medicationId, result.input, keepStock)
+                    val saved = repository.saveMedication(medicationId, result.input, current.colorKey, keepStock)
                     reminders.refreshMedication(saved.id, before, saved.alert)
                     _state.update { it.copy(saving = false, finished = true) }
                 }

@@ -3,6 +3,7 @@ package ec.atiempo.app.data
 import ec.atiempo.app.domain.DoseTime
 import ec.atiempo.app.domain.IntakeEvent
 import ec.atiempo.app.domain.Medication
+import ec.atiempo.app.domain.MedicationColors
 import ec.atiempo.app.domain.MedicationWithSchedules
 import ec.atiempo.app.domain.Schedule
 import ec.atiempo.app.domain.StockMovement
@@ -18,6 +19,7 @@ fun MedicationEntity.toDomain() = Medication(
     active = active,
     restockPending = restockPending,
     createdAt = createdAt,
+    colorKey = MedicationColors.normalize(colorKey),
 )
 
 fun Medication.toEntity() = MedicationEntity(
@@ -31,6 +33,7 @@ fun Medication.toEntity() = MedicationEntity(
     active = active,
     restockPending = restockPending,
     createdAt = createdAt,
+    colorKey = MedicationColors.normalize(colorKey),
 )
 
 fun ScheduleEntity.toDomain() = Schedule(id = id, medicationId = medicationId, time = DoseTime(hour, minute))

@@ -14,7 +14,7 @@ class TodayRulesTest {
     private val zone = ZoneId.of("America/Guayaquil")
 
     private fun med(id: Long, name: String, active: Boolean = true) =
-        Medication(id = id, name = name, dosePerIntake = 1.0, stock = 10.0, active = active, createdAt = 0)
+        Medication(id = id, name = name, dosePerIntake = 1.0, stock = 10.0, active = active, createdAt = 0, colorKey = "azul")
 
     private fun item(med: Medication, vararg times: Pair<Long, DoseTime>) =
         MedicationWithSchedules(med, times.map { (id, t) -> Schedule(id, med.id, t) })

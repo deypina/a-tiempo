@@ -21,6 +21,7 @@ class InventoryRulesTest {
             urgentThreshold = urgent,
             restockPending = restock,
             createdAt = 0,
+            colorKey = "azul",
         )
 
     private fun event(status: IntakeStatus = IntakeStatus.PENDING, quantity: Double = 0.0) =
@@ -283,7 +284,7 @@ class InventoryRulesTest {
 
     @Test
     fun undoIntake_startsAFreshReminderCycle() {
-        val medication = Medication(id = 1, name = "Gabapentina", dosePerIntake = 1.0, stock = 9.0, createdAt = 0)
+        val medication = Medication(id = 1, name = "Gabapentina", dosePerIntake = 1.0, stock = 9.0, createdAt = 0, colorKey = "azul")
         val taken = IntakeEvent(
             id = "1-1-20261111", medicationId = 1, scheduleId = 1, scheduledAt = 0,
             status = IntakeStatus.TAKEN, snoozeCount = 3, takenAt = 5, quantity = 1.0,

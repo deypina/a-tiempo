@@ -1,6 +1,10 @@
 package ec.atiempo.app.ui.meds
 
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -11,6 +15,9 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -31,8 +38,17 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.StrokeCap
+import androidx.compose.ui.graphics.StrokeJoin
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -40,11 +56,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ec.atiempo.app.R
 import ec.atiempo.app.domain.DoseTime
+import ec.atiempo.app.domain.MedicationColors
 import ec.atiempo.app.domain.MedicationError
 import ec.atiempo.app.domain.Quantity
 import ec.atiempo.app.ui.common.AppViewModelFactory
 import ec.atiempo.app.ui.common.TimePickerDialog
 import ec.atiempo.app.ui.common.formatTime
+import ec.atiempo.app.ui.theme.medicationColor
+import ec.atiempo.app.ui.theme.medicationColorName
+import ec.atiempo.app.ui.theme.needsOutline
 
 private val ButtonModifier = Modifier
     .fillMaxWidth()
@@ -84,6 +104,9 @@ fun EditMedicationScreen(
                 keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
                 modifier = Modifier.fillMaxWidth(),
             )
+
+            // Color
+            ColorSection(selected = state.colorKey, onSelect = viewModel::onColorChange)
 
             // Dose
             DoseSection(
@@ -213,6 +236,76 @@ private fun Header(isNew: Boolean, onBack: () -> Unit) {
         Text(
             stringResource(if (isNew) R.string.meds_add else R.string.med_edit_title),
             style = MaterialTheme.typography.headlineMedium,
+        )
+    }
+}
+
+/** "Color para reconocerla": six big circles; the chosen one has an ink ring and a check mark. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ColorSection(selected: String, onSelect: (String) -> Unit) {
+    Text(stringResource(R.string.med_color), style = MaterialTheme.typography.titleLarge)
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.selectableGroup(),
+    ) {
+        MedicationColors.KEYS.forEach { key ->
+            ColorChoice(key = key, selected = key == selected, onClick = { onSelect(key) })
+        }
+    }
+    Text(stringResource(R.string.med_color_help), style = MaterialTheme.typography.bodyLarge)
+}
+
+@Composable
+private fun ColorChoice(key: String, selected: Boolean, onClick: () -> Unit) {
+    val name = stringResource(medicationColorName(key))
+    val description = if (selected) stringResource(R.string.color_selected, name) else name
+    val ink = MaterialTheme.colorScheme.onBackground
+    val fill = medicationColor(key)
+    val ring = when {
+        selected -> Modifier.border(3.dp, ink, CircleShape)
+        needsOutline(key) -> Modifier.border(1.dp, ink, CircleShape)
+        else -> Modifier
+    }
+    // 56dp touch target around a 48dp circle.
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier
+            .size(56.dp)
+            .selectable(selected = selected, onClick = onClick, role = Role.RadioButton)
+            .semantics { contentDescription = description },
+    ) {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier
+                .size(48.dp)
+                .then(ring)
+                .padding(if (selected) 5.dp else 0.dp)
+                .background(fill, CircleShape),
+        ) {
+            if (selected) CheckMark(color = if (fill.luminance() > 0.4f) CHECK_DARK else CHECK_LIGHT)
+        }
+    }
+}
+
+/** Ink and paper of the light theme: the check stays readable on every palette color. */
+private val CHECK_DARK = Color(0xFF1E1A15)
+private val CHECK_LIGHT = Color(0xFFFFFDF8)
+
+/** Check mark drawn as a path, so no glyph or extra drawable is needed. Decorative. */
+@Composable
+private fun CheckMark(color: Color) {
+    Canvas(modifier = Modifier.size(22.dp)) {
+        val path = Path().apply {
+            moveTo(size.width * 0.12f, size.height * 0.52f)
+            lineTo(size.width * 0.40f, size.height * 0.80f)
+            lineTo(size.width * 0.88f, size.height * 0.22f)
+        }
+        drawPath(
+            path = path,
+            color = color,
+            style = Stroke(width = 3.dp.toPx(), cap = StrokeCap.Round, join = StrokeJoin.Round),
         )
     }
 }

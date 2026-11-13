@@ -13,6 +13,8 @@ data class Medication(
     val active: Boolean = true,
     val restockPending: Boolean = false,
     val createdAt: Long,
+    /** Color key from [MedicationColors.KEYS], to recognize the medication at a glance. */
+    val colorKey: String,
 ) {
     companion object {
         const val DEFAULT_WARN_THRESHOLD = 5.0
