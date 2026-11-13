@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import ec.atiempo.app.domain.Appearance
 import ec.atiempo.app.domain.DoseTime
 import ec.atiempo.app.domain.FontSize
 import ec.atiempo.app.domain.PurchaseRules
@@ -27,6 +28,8 @@ data class Settings(
     /** Time of the daily urgent purchase reminder (urgentReminderHour in the spec). */
     val urgentReminderTime: DoseTime = PurchaseRules.DEFAULT_URGENT_REMINDER_TIME,
     val fontSize: FontSize = FontSize.NORMAL,
+    /** Claro by default, even when the phone is in dark mode. */
+    val appearance: Appearance = Appearance.LIGHT,
     val onboardingDone: Boolean = false,
 )
 
@@ -46,6 +49,7 @@ class SettingsRepository(context: Context) {
                 urgentReminderTime = urgentTime(prefs[URGENT_HOUR], prefs[URGENT_MINUTE]),
                 fontSize = FontSize.entries.firstOrNull { it.name == prefs[FONT_SCALE] } ?: FontSize.NORMAL,
                 onboardingDone = prefs[ONBOARDING_DONE] ?: false,
+                appearance = Appearance.entries.firstOrNull { it.name == prefs[APPEARANCE] } ?: Appearance.LIGHT,
             )
         }
 
@@ -72,6 +76,10 @@ class SettingsRepository(context: Context) {
         store.edit { it[FONT_SCALE] = size.name }
     }
 
+    suspend fun setAppearance(appearance: Appearance) {
+        store.edit { it[APPEARANCE] = appearance.name }
+    }
+
     suspend fun completeOnboarding() {
         store.edit { it[ONBOARDING_DONE] = true }
     }
@@ -93,5 +101,6 @@ class SettingsRepository(context: Context) {
         private val URGENT_MINUTE = intPreferencesKey("urgentReminderMinute")
         private val FONT_SCALE = stringPreferencesKey("fontScale")
         private val ONBOARDING_DONE = booleanPreferencesKey("onboardingDone")
+        private val APPEARANCE = stringPreferencesKey("appearance")
     }
 }

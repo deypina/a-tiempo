@@ -10,6 +10,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ec.atiempo.app.ATiempoApp
+import ec.atiempo.app.domain.Appearance
 import ec.atiempo.app.ui.theme.ATiempoTheme
 
 /**
@@ -23,7 +24,10 @@ class PurchaseActivity : ComponentActivity() {
         val settings = (application as ATiempoApp).container.settingsRepository.settings
         setContent {
             val current by settings.collectAsStateWithLifecycle(initialValue = null)
-            ATiempoTheme(fontScale = current?.fontSize?.scale ?: 1f) {
+            ATiempoTheme(
+                fontScale = current?.fontSize?.scale ?: 1f,
+                appearance = current?.appearance ?: Appearance.LIGHT,
+            ) {
                 Scaffold { innerPadding ->
                     QuantityEntryScreen(onClose = { finish() }, modifier = Modifier.padding(innerPadding))
                 }

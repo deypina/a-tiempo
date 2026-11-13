@@ -22,7 +22,7 @@ import ec.atiempo.app.domain.Quantity
 import ec.atiempo.app.domain.StockAlert
 import ec.atiempo.app.ui.purchase.QuantityEntryViewModel
 import ec.atiempo.app.ui.purchase.PurchaseActivity
-import ec.atiempo.app.ui.common.formatTime
+import ec.atiempo.app.ui.common.formatTime12
 import ec.atiempo.app.ui.common.pillQuantity
 import java.time.Instant
 import java.time.ZoneId
@@ -106,7 +106,7 @@ class ReminderNotifier(private val context: Context) {
     /** Quiet "No confirmó su toma de {medicamento} de las {hora}." */
     fun showMissed(medication: Medication, event: IntakeEvent) {
         val time = Instant.ofEpochMilli(event.scheduledAt).atZone(ZoneId.systemDefault()).toLocalTime()
-        val text = context.getString(R.string.notif_missed, medication.name, formatTime(context, time))
+        val text = context.getString(R.string.notif_missed, medication.name, formatTime12(time))
         val notification = NotificationCompat.Builder(context, CHANNEL_INFO)
             .setSmallIcon(R.drawable.ic_tab_today)
             .setContentTitle(text)

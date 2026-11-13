@@ -1,9 +1,7 @@
 package ec.atiempo.app.ui.common
 
 import android.content.Context
-import android.text.format.DateFormat
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import ec.atiempo.app.R
 import ec.atiempo.app.domain.DoseTime
@@ -16,30 +14,31 @@ import java.util.Locale
 
 private val appLocale: Locale = Locale.forLanguageTag("es-EC")
 
-/** "9:00 p. m." or "21:00", following the phone's 12/24-hour setting. */
-@Composable
-fun formatTime(time: DoseTime): String {
-    val pattern = if (DateFormat.is24HourFormat(LocalContext.current)) "HH:mm" else "h:mm a"
-    return LocalTime.of(time.hour, time.minute).format(DateTimeFormatter.ofPattern(pattern, appLocale))
+/**
+ * The one place that formats a time: always 12 h, whatever the phone's 12/24 h setting
+ * (docs/ESPECIFICACION_TECNICA.md §5). "7:00 a. m.", "1:25 p. m."; midnight is "12:00 a. m."
+ * and noon "12:00 p. m.". The suffix is built here, not taken from the locale, so it never varies.
+ */
+fun formatTime12(time: LocalTime): String {
+    val hour12 = if (time.hour % 12 == 0) 12 else time.hour % 12
+    val minutes = time.minute.toString().padStart(2, '0')
+    val suffix = if (time.hour < 12) "a. m." else "p. m."
+    return "$hour12:$minutes $suffix"
 }
+
+/** A scheduled time, e.g. "9:00 p. m.". */
+@Composable
+fun formatTime(time: DoseTime): String = formatTime12(LocalTime.of(time.hour, time.minute))
 
 /** Time of an epoch-millis moment in the phone's zone, e.g. "Tomada a las 8:05 a. m.". */
 @Composable
-fun formatTime(millis: Long): String {
-    val time = Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalTime()
-    return formatTime(LocalContext.current, time)
-}
+fun formatTime(millis: Long): String =
+    formatTime12(Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalTime())
 
 /** "mié., 11 nov. 2026" for history lines. */
 fun formatDate(millis: Long): String =
     Instant.ofEpochMilli(millis).atZone(ZoneId.systemDefault()).toLocalDate()
         .format(DateTimeFormatter.ofPattern("EEE, d MMM yyyy", appLocale))
-
-/** Same as [formatTime] for code outside Compose (notifications). */
-fun formatTime(context: Context, time: LocalTime): String {
-    val pattern = if (DateFormat.is24HourFormat(context)) "HH:mm" else "h:mm a"
-    return time.format(DateTimeFormatter.ofPattern(pattern, appLocale))
-}
 
 /** Same as [pillQuantity] for code outside Compose (notifications). */
 fun pillQuantity(context: Context, value: Double): String {
@@ -59,7 +58,7 @@ fun pillQuantity(value: Double): String {
     }
 }
 
-/** "Le quedan 8 pastillas · le alcanza para 8 días". */
+/** "Quedan 8 pastillas · le alcanza para 8 días". */
 @Composable
 fun stockLine(stock: Double, daysLeft: Int?): String {
     if (stock <= 0.0) return stringResource(R.string.stock_empty_line)

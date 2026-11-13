@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import ec.atiempo.app.data.Settings
 import ec.atiempo.app.data.SettingsRepository
+import ec.atiempo.app.domain.Appearance
 import ec.atiempo.app.domain.DoseTime
 import ec.atiempo.app.domain.FontSize
 import ec.atiempo.app.reminders.ReminderManager
@@ -54,5 +55,9 @@ class SettingsViewModel(
 
     fun onFontSize(size: FontSize) {
         viewModelScope.launch { settings.setFontSize(size) }
+    }
+
+    fun onAppearance(appearance: Appearance) {
+        viewModelScope.launch { settings.setAppearance(appearance) }
     }
 }

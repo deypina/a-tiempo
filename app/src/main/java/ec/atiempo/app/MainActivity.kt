@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.lifecycleScope
 import ec.atiempo.app.data.Settings
+import ec.atiempo.app.domain.Appearance
 import ec.atiempo.app.ui.ATiempoRoot
 import ec.atiempo.app.ui.theme.ATiempoTheme
 import ec.atiempo.app.ui.welcome.WelcomeScreen
@@ -29,7 +30,10 @@ class MainActivity : ComponentActivity() {
         setContent {
             val current by settings.collectAsStateWithLifecycle(initialValue = null)
             val loaded = current
-            ATiempoTheme(fontScale = loaded?.fontSize?.scale ?: 1f) {
+            ATiempoTheme(
+                fontScale = loaded?.fontSize?.scale ?: 1f,
+                appearance = loaded?.appearance ?: Appearance.LIGHT,
+            ) {
                 when {
                     // Brief blank frame while preferences load, so the welcome never flashes.
                     loaded == null -> Surface(Modifier.fillMaxSize()) { Box(Modifier.fillMaxSize()) }

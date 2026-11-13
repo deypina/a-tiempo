@@ -6,18 +6,21 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -28,6 +31,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
 import ec.atiempo.app.R
+import ec.atiempo.app.ui.common.DoubleRule
 import ec.atiempo.app.ui.history.HistoryScreen
 import ec.atiempo.app.ui.history.HistoryViewModel
 import ec.atiempo.app.ui.meds.EditMedicationScreen
@@ -39,6 +43,7 @@ import ec.atiempo.app.ui.purchase.QuantityMode
 import ec.atiempo.app.ui.settings.AboutScreen
 import ec.atiempo.app.ui.settings.PermissionsScreen
 import ec.atiempo.app.ui.settings.SettingsScreen
+import ec.atiempo.app.ui.theme.Libreta
 import ec.atiempo.app.ui.today.TodayScreen
 
 private enum class Tab(
@@ -77,9 +82,11 @@ fun ATiempoRoot() {
 
     Scaffold(
         bottomBar = {
-            // A hairline over the bar, as in a notebook, instead of a tinted panel.
+            // Paper with a double ink line on top, as in a notebook, instead of a tinted panel.
+            val green = MaterialTheme.colorScheme.primary
+            val muted = Libreta.colors.muted
             Column {
-                HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant)
+                DoubleRule()
                 NavigationBar(containerColor = MaterialTheme.colorScheme.background, tonalElevation = 0.dp) {
                     Tab.entries.forEach { tab ->
                         // "meds/edit..." also belongs to the Meds tab.
@@ -103,7 +110,21 @@ fun ATiempoRoot() {
                                     modifier = Modifier.size(28.dp),
                                 )
                             },
-                            label = { Text(stringResource(tab.label)) },
+                            // The active tab is green, bold and underlined; no Material pill behind it.
+                            label = {
+                                Text(
+                                    stringResource(tab.label),
+                                    fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                                    textDecoration = if (selected) TextDecoration.Underline else TextDecoration.None,
+                                )
+                            },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = green,
+                                selectedTextColor = green,
+                                indicatorColor = Color.Transparent,
+                                unselectedIconColor = muted,
+                                unselectedTextColor = muted,
+                            ),
                             modifier = Modifier.heightIn(min = 56.dp),
                         )
                     }
