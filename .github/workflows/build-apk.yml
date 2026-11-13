@@ -53,6 +53,13 @@ jobs:
       - name: Verificar que la app no pide internet
         run: ./scripts/check-no-internet.sh app/build/outputs/apk/debug/app-debug.apk
 
+      # The release build shrinks the code with R8. Building it on every push (unsigned)
+      # catches R8 problems before a version is tagged.
+      - name: Compilar versión final sin firmar (revisa R8)
+        run: |
+          ./gradlew assembleRelease
+          ./scripts/check-no-internet.sh app/build/outputs/apk/release/app-release-unsigned.apk
+
       - name: Subir APK de prueba
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -160,3 +167,6 @@ jobs:
         with:
           files: A-Tiempo.apk
           generate_release_notes: true
+          # Test versions (v1.0.0-rc1) are marked as pre-release, so the download page,
+          # which links to releases/latest, keeps offering the last final version.
+          prerelease: ${{ contains(github.ref_name, '-rc') }}

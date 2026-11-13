@@ -251,13 +251,15 @@ Reglas de color:
 - Firma release leída de variables de entorno (`KEYSTORE_PATH`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`). Si no existen, compilar release sin firmar no debe romper el build de debug.
 - La llave se crea **una sola vez** y se guarda en un lugar seguro + secretos de GitHub. Perderla obliga a desinstalar (y perder datos) para actualizar.
 - `.github/workflows/build-apk.yml` compila en cada push a `main` (artefacto) y publica en Releases al subir una etiqueta `v*`.
-- El release usa R8 (`isMinifyEnabled` y `isShrinkResources`) para reducir tamaño y no es depurable.
+- El release usa R8 (`isMinifyEnabled` y `isShrinkResources`) para reducir tamaño y no es depurable. En cada push se compila sin firmar para detectar a tiempo problemas de R8.
+- La llave es PKCS12 (alias `a-tiempo`, contraseña de la llave igual a la del almacén), creada con `openssl` por un script que corre la dueña en su Mac. Vive fuera del repositorio, con una copia de respaldo, y en los 4 secretos de GitHub.
+- Etiquetas `v1.0.0-rcN` publican una versión de prueba marcada como *pre-release*: el botón de descarga (`releases/latest`) sigue apuntando a la última versión final.
 
 ## 8. Pruebas
 
 - Unitarias del dominio: confirmar, idempotencia, deshacer, umbrales (incluidos cruces dobles y medias pastillas), compra, ajuste, días restantes, próxima ocurrencia de alarma (cambio de día, medianoche).
 - Instrumentadas mínimas: DAO de Room.
-- Migración de Room (`MigrationTestHelper`, en el emulador): crea una base de datos versión 1 con medicamentos, horarios, tomas y movimientos, la migra a la versión 2 y comprueba que todo sigue igual y que cada medicamento tiene un color distinto, en orden de `id`.
+- Migración de Room (en el emulador): crea, desde el esquema exportado `1.json`, una base de datos versión 1 con medicamentos, horarios, tomas y movimientos, la migra a la versión 2 y comprueba que todo sigue igual y que cada medicamento tiene un color distinto, en orden de `id`.
 - Unitarias: primer color libre y formato de hora en 12 h (medianoche, mediodía, sin cero adelante).
 - De punta a punta (`app/src/androidTest/.../e2e`): la app real en un emulador Android 15 dentro de GitHub Actions (trabajo `e2e`, `./gradlew connectedDebugAndroidTest`). Cada prueba empieza con la app recién instalada (Test Orchestrator con `clearPackageData`). Cubren bienvenida, agregar medicamento, "Ya la tomé" y "Deshacer" desde Hoy, compra e historial. Una versión (etiqueta `v*`) solo se publica si pasan. Siguen siendo manuales: que la alarma suene a la hora, la pantalla bloqueada y el tamaño de letra del teléfono.
 - Las librerías de prueba (`androidTestImplementation`) no entran en el APK de la app.
