@@ -5,7 +5,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,20 +13,24 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CardColors
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import ec.atiempo.app.R
+import ec.atiempo.app.domain.InventoryRules
+import ec.atiempo.app.domain.Medication
+import ec.atiempo.app.domain.StockLevel
+import ec.atiempo.app.domain.TodayRules
 import ec.atiempo.app.ui.theme.Libreta
 import androidx.compose.material3.Button as M3Button
-import androidx.compose.material3.Card as M3Card
 import androidx.compose.material3.OutlinedButton as M3OutlinedButton
 
 /*
@@ -133,23 +136,38 @@ fun RowRule(modifier: Modifier = Modifier) {
     Box(modifier.fillMaxWidth().height(1.dp).background(Libreta.colors.rule))
 }
 
-/** A sheet of the notebook: paper color, 1dp line, no shadow. */
+/**
+ * The stock line of a medication in its status color: brick "Se acabó · no le quedan pastillas"
+ * when it ran out, ocre when low, [okColor] otherwise. The words always say it too, never the color alone.
+ */
 @Composable
-fun Card(
+fun StockLineText(
+    medication: Medication,
+    scheduleCount: Int,
+    okColor: Color,
     modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null,
-    colors: CardColors = CardDefaults.cardColors(
-        containerColor = MaterialTheme.colorScheme.surface,
-        contentColor = MaterialTheme.colorScheme.onSurface,
-    ),
-    content: @Composable ColumnScope.() -> Unit,
 ) {
-    val shape = MaterialTheme.shapes.medium
-    val border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
-    val elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
-    if (onClick != null) {
-        M3Card(onClick = onClick, modifier = modifier, shape = shape, colors = colors, elevation = elevation, border = border, content = content)
-    } else {
-        M3Card(modifier = modifier, shape = shape, colors = colors, elevation = elevation, border = border, content = content)
+    val style = MaterialTheme.typography.bodyLarge
+    when (TodayRules.stockLevel(medication)) {
+        StockLevel.OUT -> Text(
+            stringResource(R.string.stock_out_line),
+            style = style,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.error,
+            modifier = modifier,
+        )
+        StockLevel.LOW -> Text(
+            stockLine(medication.stock, InventoryRules.daysLeft(medication, scheduleCount)),
+            style = style,
+            fontWeight = FontWeight.Bold,
+            color = Libreta.colors.ocre,
+            modifier = modifier,
+        )
+        StockLevel.OK -> Text(
+            stockLine(medication.stock, InventoryRules.daysLeft(medication, scheduleCount)),
+            style = style,
+            color = okColor,
+            modifier = modifier,
+        )
     }
 }

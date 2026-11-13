@@ -176,10 +176,24 @@ class ReminderManager(
      * "Recordar en X min". Never changes the stock. The alarm (and its time) is stored before the
      * status changes, so Hoy already knows the new time when it sees the intake snoozed.
      */
-    suspend fun onSnooze(eventId: String) = lock.withLock {
-        val event = intakes.getEvent(eventId) ?: return@withLock
+    suspend fun onSnooze(eventId: String) = lock.withLock { snooze(eventId) }
+
+    /**
+     * "Recordar en X minutos" from Hoy. Works the same as from the notification: the intake of
+     * the day on screen is created first if its alarm has not fired yet. An intake whose time has
+     * not come yet is left alone; its own daily alarm reminds at the right time.
+     */
+    suspend fun onSnoozeToday(medicationId: Long, scheduleId: Long, date: LocalDate) = lock.withLock {
+        val target = intakes.reminderTarget(medicationId, scheduleId) ?: return@withLock
+        val scheduledAt = TodayRules.scheduledAt(date, target.schedule.time, clock.zone)
+        if (scheduledAt > clock.millis()) return@withLock
+        snooze(intakes.ensureEvent(target, scheduledAt))
+    }
+
+    private suspend fun snooze(eventId: String) {
+        val event = intakes.getEvent(eventId) ?: return
         notifier.cancelIntake(event.scheduleId)
-        if (!ReminderRules.canSnooze(event)) return@withLock
+        if (!ReminderRules.canSnooze(event)) return
         scheduler.scheduleRepeat(event, settings.current().snoozeMinutes)
         if (intakes.snooze(eventId) == null) scheduler.cancelRepeat(event.scheduleId)
     }

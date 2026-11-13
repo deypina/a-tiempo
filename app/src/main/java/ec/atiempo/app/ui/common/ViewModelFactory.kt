@@ -7,6 +7,7 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import ec.atiempo.app.ATiempoApp
 import ec.atiempo.app.ui.history.HistoryViewModel
 import ec.atiempo.app.ui.meds.EditMedicationViewModel
+import ec.atiempo.app.ui.meds.MedicationDetailViewModel
 import ec.atiempo.app.ui.meds.MedsViewModel
 import ec.atiempo.app.ui.purchase.QuantityEntryViewModel
 import ec.atiempo.app.ui.settings.SettingsViewModel
@@ -18,6 +19,9 @@ object AppViewModelFactory {
     val instance = viewModelFactory {
         initializer {
             MedsViewModel(app().container.medicationRepository)
+        }
+        initializer {
+            MedicationDetailViewModel(app().container.medicationRepository, createSavedStateHandle())
         }
         initializer {
             EditMedicationViewModel(

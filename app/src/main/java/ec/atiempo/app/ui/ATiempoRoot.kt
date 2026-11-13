@@ -36,6 +36,8 @@ import ec.atiempo.app.ui.history.HistoryScreen
 import ec.atiempo.app.ui.history.HistoryViewModel
 import ec.atiempo.app.ui.meds.EditMedicationScreen
 import ec.atiempo.app.ui.meds.EditMedicationViewModel
+import ec.atiempo.app.ui.meds.MedicationDetailScreen
+import ec.atiempo.app.ui.meds.MedicationDetailViewModel
 import ec.atiempo.app.ui.meds.MedsScreen
 import ec.atiempo.app.ui.purchase.QuantityEntryScreen
 import ec.atiempo.app.ui.purchase.QuantityEntryViewModel
@@ -66,6 +68,10 @@ private const val QUANTITY_ROUTE =
 
 private fun quantityRoute(id: Long, mode: QuantityMode) =
     "meds/quantity/$id?${QuantityEntryViewModel.ARG_MODE}=${mode.name}"
+
+private const val DETAIL_ROUTE = "meds/detail/{${MedicationDetailViewModel.ARG_MEDICATION_ID}}"
+
+private fun detailRoute(id: Long) = "meds/detail/$id"
 
 private const val HISTORY_ROUTE = "meds/history/{${HistoryViewModel.ARG_MEDICATION_ID}}"
 
@@ -138,15 +144,27 @@ fun ATiempoRoot() {
             modifier = Modifier.padding(innerPadding),
         ) {
             composable(Tab.Today.route) {
-                TodayScreen()
+                TodayScreen(
+                    onPurchase = { id -> navController.navigate(quantityRoute(id, QuantityMode.PURCHASE)) },
+                )
             }
             composable(Tab.Meds.route) {
                 MedsScreen(
                     onAdd = { navController.navigate(editMedRoute(null)) },
-                    onOpen = { id -> navController.navigate(editMedRoute(id)) },
+                    onOpen = { id -> navController.navigate(detailRoute(id)) },
+                    onPurchase = { id -> navController.navigate(quantityRoute(id, QuantityMode.PURCHASE)) },
+                )
+            }
+            composable(
+                route = DETAIL_ROUTE,
+                arguments = listOf(navArgument(MedicationDetailViewModel.ARG_MEDICATION_ID) { type = NavType.LongType }),
+            ) {
+                MedicationDetailScreen(
+                    onClose = { navController.popBackStack() },
                     onPurchase = { id -> navController.navigate(quantityRoute(id, QuantityMode.PURCHASE)) },
                     onAdjust = { id -> navController.navigate(quantityRoute(id, QuantityMode.ADJUST)) },
                     onHistory = { id -> navController.navigate(historyRoute(id)) },
+                    onEdit = { id -> navController.navigate(editMedRoute(id)) },
                 )
             }
             composable(

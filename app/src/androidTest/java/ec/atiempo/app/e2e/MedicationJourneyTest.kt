@@ -17,6 +17,7 @@ import androidx.compose.ui.test.performTextReplacement
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import ec.atiempo.app.MainActivity
 import ec.atiempo.app.R
+import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -49,25 +50,32 @@ class MedicationJourneyTest {
         // Add a medication: 1 pill at 08:00, 10 pills at home.
         tapTab(R.string.tab_meds)
         tap(str(R.string.meds_add))
-        field(str(R.string.med_name)).performTextInput(MED)
+        field(str(R.string.med_name)).performScrollTo().performTextInput(MED)
         tap(str(R.string.med_add_first_time))
         tap(str(R.string.common_ok))
         field(str(R.string.med_stock)).performScrollTo().performTextReplacement("10")
         tap(str(R.string.med_save))
         waitFor(hasText(MED))
 
-        // "Ya la tomé" from Hoy takes one pill.
+        // "Ya la tomé" from Hoy takes one pill; the list shows the new count.
         tapTab(R.string.tab_today)
         tap(str(R.string.btn_taken))
+        waitFor(hasText(str(R.string.btn_undo)) and hasClickAction())
+        tapTab(R.string.tab_meds)
         waitFor(hasText(str(R.string.stock_qty_other, "9"), substring = true))
 
-        // "Deshacer" gives it back and the intake is pending again.
+        // "Deshacer" gives it back and the intake waits for "Ya la tomé" again.
+        tapTab(R.string.tab_today)
         tap(str(R.string.btn_undo))
+        waitFor(hasText(str(R.string.btn_taken)) and hasClickAction())
+        tapTab(R.string.tab_meds)
         waitFor(hasText(str(R.string.stock_qty_other, "10"), substring = true))
-        waitFor(hasText(str(R.string.status_pending)))
+
+        // With enough pills the list has no purchase button; "Ver más" opens the detail.
+        assertFalse(exists(hasText(str(R.string.purchase_btn)) and hasClickAction()))
+        tap(str(R.string.meds_more))
 
         // A purchase of 20 adds to the count.
-        tapTab(R.string.tab_meds)
         tap(str(R.string.purchase_btn))
         field(str(R.string.purchase_other)).performTextInput("20")
         tap(str(R.string.purchase_save))

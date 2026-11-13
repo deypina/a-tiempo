@@ -1,36 +1,51 @@
 package ec.atiempo.app.ui.meds
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import ec.atiempo.app.ui.common.Button
-import ec.atiempo.app.ui.common.Card
 import androidx.compose.material3.MaterialTheme
-import ec.atiempo.app.ui.common.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import ec.atiempo.app.R
-import ec.atiempo.app.domain.InventoryRules
 import ec.atiempo.app.domain.MedicationWithSchedules
+import ec.atiempo.app.domain.StockLevel
+import ec.atiempo.app.domain.TodayRules
 import ec.atiempo.app.ui.common.AppViewModelFactory
+import ec.atiempo.app.ui.common.Button
+import ec.atiempo.app.ui.common.DoubleRule
+import ec.atiempo.app.ui.common.OutlinedButton
+import ec.atiempo.app.ui.common.RowRule
+import ec.atiempo.app.ui.common.StockLineText
 import ec.atiempo.app.ui.common.formatTime
 import ec.atiempo.app.ui.common.joinWithDots
 import ec.atiempo.app.ui.common.pillQuantity
-import ec.atiempo.app.ui.common.stockLine
+import ec.atiempo.app.ui.theme.ColorDot
+import ec.atiempo.app.ui.theme.Libreta
 
-private val CardButtonModifier = Modifier
+/** Decorative arrow after "Ver más". */
+private const val MORE_GLYPH = "›"
+
+private val FullWidthButton = Modifier
     .fillMaxWidth()
     .heightIn(min = 56.dp)
 
@@ -39,27 +54,19 @@ fun MedsScreen(
     onAdd: () -> Unit,
     onOpen: (Long) -> Unit,
     onPurchase: (Long) -> Unit,
-    onAdjust: (Long) -> Unit,
-    onHistory: (Long) -> Unit,
     viewModel: MedsViewModel = viewModel(factory = AppViewModelFactory.instance),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     LazyColumn(
         modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(24.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 20.dp),
     ) {
         item {
             Text(stringResource(R.string.meds_title), style = MaterialTheme.typography.headlineLarge)
         }
         item {
-            Button(
-                onClick = onAdd,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 56.dp),
-            ) {
+            OutlinedButton(onClick = onAdd, modifier = Modifier.padding(top = 12.dp).then(FullWidthButton)) {
                 Text(stringResource(R.string.meds_add))
             }
         }
@@ -67,66 +74,87 @@ fun MedsScreen(
         if (current is MedsUiState.Ready) {
             if (current.medications.isEmpty()) {
                 item {
-                    Text(stringResource(R.string.today_empty), style = MaterialTheme.typography.bodyLarge)
+                    Text(
+                        stringResource(R.string.today_empty),
+                        style = MaterialTheme.typography.bodyLarge,
+                        modifier = Modifier.padding(top = 16.dp),
+                    )
                 }
-            }
-            items(current.medications, key = { it.medication.id }) { item ->
-                MedicationCard(
-                    item = item,
-                    onClick = { onOpen(item.medication.id) },
-                    onPurchase = { onPurchase(item.medication.id) },
-                    onAdjust = { onAdjust(item.medication.id) },
-                    onHistory = { onHistory(item.medication.id) },
-                )
+            } else {
+                item { DoubleRule(Modifier.padding(top = 20.dp)) }
+                items(current.medications, key = { it.medication.id }) { item ->
+                    MedicationRow(
+                        item = item,
+                        onOpen = { onOpen(item.medication.id) },
+                        onPurchase = { onPurchase(item.medication.id) },
+                    )
+                    RowRule()
+                }
             }
         }
     }
 }
 
+/**
+ * One medication as a row: color, name and "Ver más ›" (the whole top line opens the detail),
+ * then dose and times, the stock line and, only when needed, "Registrar compra".
+ */
 @Composable
-private fun MedicationCard(
+private fun MedicationRow(
     item: MedicationWithSchedules,
-    onClick: () -> Unit,
+    onOpen: () -> Unit,
     onPurchase: () -> Unit,
-    onAdjust: () -> Unit,
-    onHistory: () -> Unit,
 ) {
     val med = item.medication
-    Card(
-        onClick = onClick,
+    Column(
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 56.dp),
+            .padding(vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .heightIn(min = 56.dp)
+                .clickable(role = Role.Button, onClick = onOpen),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(med.name, style = MaterialTheme.typography.titleLarge)
+            ColorDot(med.colorKey, 20.dp)
+            Spacer(Modifier.width(12.dp))
+            Text(med.name, style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+            Spacer(Modifier.width(8.dp))
             Text(
-                joinWithDots(listOf(pillQuantity(med.dosePerIntake)) + item.schedules.map { formatTime(it.time) }),
-                style = MaterialTheme.typography.bodyLarge,
+                stringResource(R.string.meds_more),
+                style = MaterialTheme.typography.bodyLarge.copy(textDecoration = TextDecoration.Underline),
+                color = MaterialTheme.colorScheme.primary,
             )
             Text(
-                stockLine(med.stock, InventoryRules.daysLeft(med, item.schedules.size)),
+                " $MORE_GLYPH",
                 style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.clearAndSetSemantics { },
             )
-            if (!med.active) {
-                Text(
-                    stringResource(R.string.med_paused),
-                    style = MaterialTheme.typography.bodyLarge,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-            Button(onClick = onPurchase, modifier = CardButtonModifier) {
+        }
+        Text(
+            joinWithDots(listOf(pillQuantity(med.dosePerIntake)) + item.schedules.map { formatTime(it.time) }),
+            style = MaterialTheme.typography.bodyLarge,
+        )
+        StockLineText(med, item.schedules.size, okColor = MaterialTheme.colorScheme.primary)
+        if (!med.active) {
+            Text(
+                stringResource(R.string.med_paused),
+                style = MaterialTheme.typography.bodyLarge,
+                color = Libreta.colors.muted,
+            )
+        }
+        when (TodayRules.stockLevel(med)) {
+            StockLevel.OUT -> Button(onClick = onPurchase, modifier = Modifier.padding(top = 4.dp).then(FullWidthButton)) {
                 Text(stringResource(R.string.purchase_btn))
             }
-            OutlinedButton(onClick = onAdjust, modifier = CardButtonModifier) {
-                Text(stringResource(R.string.adjust_btn))
+            StockLevel.LOW -> OutlinedButton(onClick = onPurchase, modifier = Modifier.padding(top = 4.dp).then(FullWidthButton)) {
+                Text(stringResource(R.string.purchase_btn))
             }
-            OutlinedButton(onClick = onHistory, modifier = CardButtonModifier) {
-                Text(stringResource(R.string.history_btn))
-            }
+            StockLevel.OK -> Unit
         }
     }
 }

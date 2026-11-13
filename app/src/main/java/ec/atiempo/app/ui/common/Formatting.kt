@@ -7,6 +7,7 @@ import ec.atiempo.app.R
 import ec.atiempo.app.domain.DoseTime
 import ec.atiempo.app.domain.Quantity
 import java.time.Instant
+import java.time.LocalDate
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -25,6 +26,24 @@ fun formatTime12(time: LocalTime): String {
     val suffix = if (time.hour < 12) "a. m." else "p. m."
     return "$hour12:$minutes $suffix"
 }
+
+/**
+ * [formatTime12] split at its first space: "3:30" and "p. m.", for the hour column of Hoy,
+ * where the suffix sits below the time in a small label.
+ */
+fun splitTime12(time: LocalTime): Pair<String, String> {
+    val text = formatTime12(time)
+    val space = text.indexOf(' ')
+    return text.substring(0, space) to text.substring(space + 1)
+}
+
+/** A scheduled time as its two parts, see [splitTime12]. */
+fun timeParts(time: DoseTime): Pair<String, String> = splitTime12(LocalTime.of(time.hour, time.minute))
+
+/** "Jueves 12 de noviembre" for the top of Hoy. Spanish names, first letter capitalized. */
+fun formatLongDate(date: LocalDate): String =
+    date.format(DateTimeFormatter.ofPattern("EEEE d 'de' MMMM", appLocale))
+        .replaceFirstChar { it.titlecase(appLocale) }
 
 /** A scheduled time, e.g. "9:00 p. m.". */
 @Composable
