@@ -5,7 +5,7 @@ Marca cada caso con ✅ o ❌ y anota qué pasó si falla. Prueba primero en el 
 ## Medicamentos e inventario
 | ID | Paso | Resultado esperado | ✅/❌ |
 |---|---|---|---|
-| C-01 | Agregar "Gabapentina", 1 por toma, 9:00 p. m., 8 pastillas | Aparece en la lista con "Le quedan 8 · le alcanza para 8 días" | |
+| C-01 | Agregar "Gabapentina", 1 por toma, 9:00 p. m., 8 pastillas | Aparece en la lista con "Quedan 8 pastillas · le alcanza para 8 días" | |
 | C-02 | Agregar "Eutirox", ½ por toma, 7:00 a. m., 10 pastillas | Muestra "½ pastilla" (no "0.5") y "le alcanza para 20 días" | |
 | C-03 | Medicamento con 2 horarios y 1 por toma, 10 pastillas | "le alcanza para 5 días" | |
 | C-04 | Intentar guardar sin nombre o sin hora | Muestra el mensaje de error correspondiente | |
@@ -51,3 +51,15 @@ Marca cada caso con ✅ o ❌ y anota qué pasó si falla. Prueba primero en el 
 |---|---|---|---|
 | C-29 | Instalar v1.0 desde Releases sobre una v1.0 anterior firmada | Se actualiza sin perder datos | |
 | C-30 | Revisar tamaño en Ajustes → Aplicaciones | Menos de 15 MB | |
+
+## Estilo libreta, apariencia y colores
+| ID | Paso | Resultado esperado | ✅/❌ |
+|---|---|---|---|
+| C-31 | Con el teléfono en modo oscuro, abrir la app por primera vez | La app se ve clara ("Claro" es la opción por defecto) | |
+| C-32 | En Ajustes → Apariencia elegir "Oscuro", cerrar la app y volver a abrirla | Sigue en oscuro; lo mismo con "Claro" y con "Como el teléfono" (sigue el modo del teléfono) | |
+| C-33 | Con el teléfono en formato de 24 h, revisar Hoy, Mis medicamentos, historial y una notificación de toma | Todas las horas salen en 12 h ("3:30 p. m.", "7:00 a. m."), nunca "15:30" | |
+| C-34 | Letra "Muy grande" en la app + letra grande del sistema, abrir Hoy | La columna de la hora no se corta: si no cabe, crece; la hora se lee completa | |
+| C-35 | Con TalkBack, tocar el color elegido al editar un medicamento y la opción elegida en cada grupo de Ajustes | TalkBack lee el color con "elegido" (ej. "Azul, elegido") y dice qué opción está elegida en Ajustes | |
+| C-36 | Revisar todos los textos en claro y en oscuro (en especial ocre y ladrillo) | Contraste de al menos 4,5:1 contra el papel en ambos modos | |
+| C-37 | Agregar un medicamento nuevo cuando ya hay otros con color | Viene elegido el primer color que no usa ningún otro medicamento | |
+| C-38 | En el A37 con datos de la versión anterior (medicamentos, horarios, historial e inventario), instalar la versión nueva encima, sin desinstalar | Los medicamentos, horarios, historial e inventario siguen iguales y cada medicamento tiene un color distinto | |

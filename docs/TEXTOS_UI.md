@@ -4,8 +4,8 @@ Reglas de estilo:
 - Trato de **usted**, cálido y breve. Frases cortas.
 - Usar `{nombre}` (nombre o apodo elegido). Si está vacío, omitir el saludo sin dejar coma suelta.
 - Evitar adjetivos con género para que sirva a cualquier persona ("¿Cómo le gustaría que le llamemos?").
-- Las líneas de inventario se arman con `join_dot`: "Le quedan 8 pastillas · le alcanza para 8 días".
-- Cantidades: "1 pastilla", "2 pastillas", "½ pastilla", "1½ pastillas". Con 1 o ½ se usa singular también en el verbo: "Le queda 1 pastilla", "Le queda ½ pastilla" (en Android, con recursos `plurals`).
+- Las líneas de inventario se arman con `join_dot`: "Quedan 8 pastillas · le alcanza para 8 días".
+- Cantidades: "1 pastilla", "2 pastillas", "½ pastilla", "1½ pastillas". Con 1 o ½ se usa singular también en el verbo: "Queda 1 pastilla", "Queda ½ pastilla" (en Android, con recursos `plurals`).
 - No poner artículos delante de `{medicamento}` ("su {medicamento}", "de {medicamento}"), porque cada nombre tiene su propio género.
 - Nada de lenguaje médico ni consejos de salud.
 
@@ -56,12 +56,19 @@ Reglas de estilo:
 | status_missed | No confirmada |
 | btn_taken | Ya la tomé |
 | btn_undo | Deshacer |
-| stock_qty_one | Le queda {n} pastilla |
-| stock_qty_other | Le quedan {n} pastillas |
+| stock_qty_one | Queda {n} pastilla |
+| stock_qty_other | Quedan {n} pastillas |
 | stock_days_many | le alcanza para {d} días |
 | stock_days_one | le alcanza para 1 día |
 | stock_days_less | no le alcanza para un día completo |
 | stock_empty_line | Ya no le quedan pastillas |
+| today_now | AHORA |
+| today_late | ATRASADA |
+| today_snooze | Recordar en {x} minutos |
+| today_important | IMPORTANTE |
+| important_out | Ya no le queda {medicamento}. |
+| important_low | Le quedan pocas pastillas de {medicamento}. |
+| important_register | Registrar la compra |
 
 ## Notificaciones de toma
 | Clave | Texto |
@@ -100,6 +107,9 @@ Reglas de estilo:
 |---|---|
 | meds_title | Mis medicamentos |
 | meds_add | Agregar medicamento |
+| meds_more | Ver más |
+| stock_out_line | Se acabó · no le quedan pastillas |
+| med_edit_btn | Editar |
 | med_edit_title | Editar medicamento |
 | med_name | Nombre del medicamento |
 | med_name_hint | Ej.: Gabapentina |
@@ -114,6 +124,15 @@ Reglas de estilo:
 | med_urgent | Avisarme con urgencia cuando me queden |
 | med_note | Nota (opcional) |
 | med_note_hint | Ej.: con comida |
+| med_color | Color para reconocerla |
+| med_color_help | Elija el color que más se parezca a la pastilla o a su caja. |
+| color_azul | Azul |
+| color_rosa | Rosa vieja |
+| color_mostaza | Mostaza |
+| color_oliva | Oliva |
+| color_ciruela | Ciruela |
+| color_blanco | Blanco |
+| color_selected | {color}, elegido |
 | med_save | Guardar |
 | med_pause | Pausar recordatorios |
 | med_resume | Reanudar recordatorios |
@@ -158,6 +177,10 @@ Reglas de estilo:
 |---|---|
 | settings_title | Ajustes |
 | settings_name | Su nombre o apodo |
+| settings_appearance | Apariencia |
+| appearance_light | Claro |
+| appearance_dark | Oscuro |
+| appearance_system | Como el teléfono |
 | settings_snooze | Cuando toque "Recordar", volver a avisar en |
 | settings_minutes | {x} minutos |
 | settings_urgent_hour | Hora del aviso diario de compra urgente |

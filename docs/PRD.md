@@ -63,7 +63,9 @@ Por cada medicamento:
 - Inventario actual (número, admite medias).
 - Umbral de aviso (por defecto 5) y umbral urgente (por defecto 3).
 - Nota opcional (ej. "con comida").
+- Color para reconocerlo de un vistazo: la persona elige uno de seis (Azul, Rosa vieja, Mostaza, Oliva, Ciruela, Blanco) al crearlo o editarlo. Al crear viene elegido el primer color que no use otro medicamento. El color siempre va acompañado del nombre.
 - Se puede pausar (deja de recordar sin borrar historial) y eliminar.
+- **Ver más:** en *Mis medicamentos*, cada medicamento abre una pantalla de detalle sencilla con su nombre y color, la cantidad por toma, los horarios, la línea de inventario y los botones Registrar compra, Corregir cantidad, Ver historial y Editar. En la lista solo se muestra "Registrar compra" cuando se acabó o quedan pocas.
 
 ### F3 — Recordatorio de toma
 - A la hora programada llega una notificación: "{Nombre}, es hora de su Gabapentina. Tome 1 pastilla."
@@ -77,7 +79,7 @@ Por cada medicamento:
 - Lista de tomas del día en orden horario con estado: Pendiente · Tomada · Pospuesta · No confirmada.
 - Botón grande para marcar "Ya la tomé" desde la app (si no vio la notificación).
 - **Deshacer** una toma marcada por error (devuelve la cantidad al inventario).
-- Debajo de cada medicamento: "Le quedan 7 pastillas · le alcanza para 7 días".
+- Debajo de cada medicamento: "Quedan 7 pastillas · le alcanza para 7 días".
 
 ### F5 — Inventario y avisos de compra
 - Cada toma confirmada descuenta la cantidad por toma.
@@ -102,6 +104,7 @@ Por cada medicamento:
 
 ### F9 — Ajustes
 - Nombre o apodo.
+- Apariencia: *Claro* (por defecto), *Oscuro* o *Como el teléfono*. La app arranca en claro aunque el teléfono esté en oscuro.
 - Minutos para "Recordar en…".
 - Hora del aviso diario de compra urgente.
 - Tamaño de letra: Normal / Grande / Muy grande.
@@ -115,7 +118,7 @@ Por cada medicamento:
 - **Privacidad:** todos los datos se guardan solo en el teléfono. Sin analítica, sin anuncios.
 - **Fiabilidad de alarmas:** usar alarmas exactas; reprogramar al reiniciar el teléfono, al cambiar hora o zona horaria y al actualizar la app.
 - **Accesibilidad:** botones de mínimo 56 dp de alto, texto base 18 sp, alto contraste, compatible con TalkBack y con el tamaño de letra del sistema.
-- **Idioma:** español (Ecuador), trato de usted, formato de hora de 12 h con a. m./p. m. según configuración del teléfono.
+- **Idioma:** español (Ecuador), trato de usted, hora siempre en formato de 12 h con a. m./p. m. ("3:30 p. m.", "7:00 a. m."), sin importar la configuración del teléfono. Aplica en pantallas, notificaciones e historial.
 - **Compatibilidad:** Android 8.0 (API 26) en adelante. Probado en Samsung Galaxy A16 y A37.
 - **Peso:** APK < 15 MB.
 - **Actualizable sin perder datos:** el APK debe firmarse siempre con la misma llave.

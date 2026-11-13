@@ -17,16 +17,19 @@
     <string name="qty_pill_one">%1$s pastilla</string>
     <string name="qty_pill_other">%1$s pastillas</string>
 
-    <string name="stock_qty_one">Le queda %1$s pastilla</string>
-    <string name="stock_qty_other">Le quedan %1$s pastillas</string>
+    <string name="stock_qty_one">Queda %1$s pastilla</string>
+    <string name="stock_qty_other">Quedan %1$s pastillas</string>
     <string name="stock_days_many">le alcanza para %1$d días</string>
     <string name="stock_days_one">le alcanza para 1 día</string>
     <string name="stock_days_less">no le alcanza para un día completo</string>
     <string name="stock_empty_line">Ya no le quedan pastillas</string>
+    <string name="stock_out_line">Se acabó · no le quedan pastillas</string>
 
     <string name="today_empty">Todavía no tiene medicamentos. Toque \"Agregar medicamento\" para empezar.</string>
 
     <string name="meds_add">Agregar medicamento</string>
+    <string name="meds_more">Ver más</string>
+    <string name="med_edit_btn">Editar</string>
     <string name="med_edit_title">Editar medicamento</string>
     <string name="med_name">Nombre del medicamento</string>
     <string name="med_name_hint">Ej.: Gabapentina</string>
@@ -41,6 +44,15 @@
     <string name="med_urgent">Avisarme con urgencia cuando me queden</string>
     <string name="med_note">Nota (opcional)</string>
     <string name="med_note_hint">Ej.: con comida</string>
+    <string name="med_color">Color para reconocerla</string>
+    <string name="med_color_help">Elija el color que más se parezca a la pastilla o a su caja.</string>
+    <string name="color_azul">Azul</string>
+    <string name="color_rosa">Rosa vieja</string>
+    <string name="color_mostaza">Mostaza</string>
+    <string name="color_oliva">Oliva</string>
+    <string name="color_ciruela">Ciruela</string>
+    <string name="color_blanco">Blanco</string>
+    <string name="color_selected">%1$s, elegido</string>
     <string name="med_save">Guardar</string>
     <string name="med_pause">Pausar recordatorios</string>
     <string name="med_resume">Reanudar recordatorios</string>
@@ -124,6 +136,13 @@
     <string name="status_missed">No confirmada</string>
     <string name="btn_taken">Ya la tomé</string>
     <string name="btn_undo">Deshacer</string>
+    <string name="today_now">AHORA</string>
+    <string name="today_late">ATRASADA</string>
+    <string name="today_snooze">Recordar en %1$d minutos</string>
+    <string name="today_important">IMPORTANTE</string>
+    <string name="important_out">Ya no le queda %1$s.</string>
+    <string name="important_low">Le quedan pocas pastillas de %1$s.</string>
+    <string name="important_register">Registrar la compra</string>
 
     <!-- History -->
     <string name="history_title">Historial de %1$s</string>
@@ -137,6 +156,10 @@
 
     <!-- Settings -->
     <string name="settings_name">Su nombre o apodo</string>
+    <string name="settings_appearance">Apariencia</string>
+    <string name="appearance_light">Claro</string>
+    <string name="appearance_dark">Oscuro</string>
+    <string name="appearance_system">Como el teléfono</string>
     <string name="settings_snooze">Cuando toque \"Recordar\", volver a avisar en</string>
     <string name="settings_minutes">%1$d minutos</string>
     <string name="settings_urgent_hour">Hora del aviso diario de compra urgente</string>

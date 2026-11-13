@@ -27,6 +27,7 @@ Flujo: la UI y los receptores llaman a **casos de uso** del dominio a través de
 | note | String? | |
 | active | Boolean | false = pausado |
 | restockPending | Boolean | true desde que cruza el umbral de aviso hasta registrar compra |
+| colorKey | String | color para reconocerlo: `azul`, `rosa`, `mostaza`, `oliva`, `ciruela` o `blanco` (versión 2 de la base de datos) |
 | createdAt | Long (epoch ms) | |
 
 ### `Schedule`
@@ -60,7 +61,16 @@ Flujo: la UI y los receptores llaman a **casos de uso** del dominio a través de
 | createdAt | Long | |
 
 ### Preferencias (DataStore)
-`userName`, `snoozeMinutes` (15), `maxRepeats` (3), `urgentReminderHour` (10:00), `fontScale` (NORMAL/LARGE/XLARGE), `onboardingDone`.
+`userName`, `snoozeMinutes` (15), `maxRepeats` (3), `urgentReminderHour` (10:00), `fontScale` (NORMAL/LARGE/XLARGE), `appearance` (LIGHT por defecto, DARK, SYSTEM), `onboardingDone`.
+
+`ATiempoTheme` recibe `appearance` igual que recibe `fontScale`. LIGHT arranca en claro aunque el teléfono esté en oscuro; SYSTEM sigue el modo del teléfono.
+
+### Versiones de la base de datos y migraciones
+- **Versión 1:** modelo inicial.
+- **Versión 2:** agrega `colorKey` a `Medication`.
+- **Migración v1→v2** (`Migration(1, 2)`): agrega la columna `colorKey` y asigna colores distintos a los medicamentos que ya existen, en orden de `id`, siguiendo el orden de la paleta (azul, rosa, mostaza, oliva, ciruela, blanco; si hay más de seis, vuelve a empezar). Conserva todos los medicamentos, horarios, tomas, movimientos e inventario.
+- La migración **nunca es destructiva**: está prohibido `fallbackToDestructiveMigration`. La persona no puede perder su inventario al actualizar.
+- Room exporta el esquema de cada versión (`exportSchema`) para poder probar la migración.
 
 ## 3. Lógica de dominio (con pruebas unitarias)
 
@@ -101,6 +111,9 @@ Registrar una compra siempre apaga los avisos, aunque el stock siga bajo (PRD F5
 
 ### Días que alcanza
 `daysLeft = floor(stock / (dosePerIntake × schedules.size))`; si no hay horarios o está pausado → no mostrar.
+
+### Primer color libre
+`firstFreeColor(usados)`: devuelve el primer color de la paleta (azul, rosa, mostaza, oliva, ciruela, blanco) que no use ningún otro medicamento; si todos están usados, el primero de la paleta. Se usa al crear un medicamento para preseleccionar su color.
 
 ## 4. Alarmas y notificaciones
 
@@ -160,23 +173,73 @@ Escuchar también `ACTION_TIME_CHANGED`, `ACTION_TIMEZONE_CHANGED`, `ACTION_MY_P
 
 ## 5. Interfaz
 
-Pantallas: Bienvenida (nombre + permisos + batería) · Hoy · Medicamentos (lista) · Editar medicamento · Registrar compra · Corregir cantidad · Historial · Ajustes · Acerca de.
+Pantallas: Bienvenida (nombre + permisos + batería) · Hoy · Medicamentos (lista) · Detalle del medicamento ("Ver más") · Editar medicamento · Registrar compra · Corregir cantidad · Historial · Ajustes · Acerca de.
 
 Navegación inferior con 3 pestañas grandes: **Hoy**, **Mis medicamentos**, **Ajustes**.
 
-- **Hoy:** las tomas del día de los medicamentos activos, en orden de hora, con su estado, la línea de cantidad y días, y el botón "Ya la tomé" o "Deshacer".
-- **Historial:** se abre con "Ver historial" en *Mis medicamentos*. Tomas, compras, correcciones y tomas deshechas salen de `StockMovement` (una toma deshecha sigue en el historial); las tomas "No confirmada" salen de `IntakeEvent`. Más recientes primero.
+- **Hora:** siempre en 12 h ("3:30 p. m.", "7:00 a. m."), sin importar la configuración del teléfono, en pantallas, notificaciones e historial. Una sola función en `ui/common/Formatting.kt` da formato a todas las horas: medianoche = "12:00 a. m.", mediodía = "12:00 p. m.", "1:25 p. m." sin cero adelante.
+- **Hoy:**
+  - Saludo: fecha pequeña arriba ("Jueves 12 de noviembre") y "Hola, {nombre}" en Literata.
+  - Avisos importantes (bloque IMPORTANTE, ver diseño), si algún medicamento se acabó o le quedan pocas.
+  - Tomas del día de los medicamentos activos como renglones: la hora en una columna a la izquierda (unos 78 dp, separada por una línea vertical fina; si con letra grande no cabe, la columna crece, nunca se recorta la hora) y a la derecha círculo de color + nombre, cantidad y estado.
+  - La próxima toma pendiente (o atrasada) va primero y más grande: hora en verde con "AHORA" debajo (o "ATRASADA" en ladrillo si ya pasó su hora), nombre más grande, línea de inventario ("Quedan 2 · le alcanza para 1 día", en ocre si quedan pocas), botón grande "Ya la tomé" y debajo el enlace subrayado "Recordar en {x} minutos" (los minutos de Ajustes).
+  - "Recordar en {x} minutos" solo aparece en la toma AHORA o ATRASADA y usa las mismas reglas que "Recordar" desde la notificación (`ReminderManager.onSnooze`).
+  - El resto de tomas, en orden de hora, más compactas. Las tomadas dicen "✓ Tomada a las 7:10 a. m." en verde, con "Deshacer" como enlace subrayado a la derecha.
+- **Mis medicamentos:**
+  - Botón con borde "Agregar medicamento" arriba.
+  - Cada medicamento es un renglón: círculo de color + nombre (Literata) + "Ver más ›" a la derecha; toda la fila de arriba es tocable y abre el detalle.
+  - Debajo: "1 pastilla · 3:30 p. m." y la línea de inventario con su color de estado (verde normal, ocre quedan pocas, ladrillo "Se acabó · no le quedan pastillas").
+  - Solo un botón visible por medicamento y solo cuando hace falta: "Registrar compra" (relleno si se acabó, con borde si quedan pocas). Si hay suficientes, no se muestra ningún botón.
+- **Detalle del medicamento ("Ver más"):** pantalla nueva y sencilla (no reutiliza Editar medicamento). Muestra el nombre con su círculo de color, la cantidad por toma, los horarios, la línea de inventario y los botones "Registrar compra", "Corregir cantidad", "Ver historial" y "Editar".
+- **Agregar / editar medicamento:** sección "Color para reconocerla" con seis círculos grandes (mínimo 48 dp) en una fila. El elegido lleva borde de tinta y un ✓ encima; TalkBack lee "{color}, elegido". Debajo, el texto de ayuda "Elija el color que más se parezca a la pastilla o a su caja.". Al crear, viene preseleccionado el primer color libre (dominio).
+- **Historial:** se abre con "Ver historial" en el detalle del medicamento. Tomas, compras, correcciones y tomas deshechas salen de `StockMovement` (una toma deshecha sigue en el historial); las tomas "No confirmada" salen de `IntakeEvent`. Más recientes primero.
 - **Ajustes:** cada cambio se guarda al momento. `fontScale` multiplica el tamaño de letra del sistema (Grande ×1,15; Muy grande ×1,3), así ambos se suman.
+  - Sección "Apariencia" al inicio (después del nombre): tres botones grandes con ícono arriba y texto abajo: *Claro* (sol), *Oscuro* (luna), *Como el teléfono* (teléfono).
+  - En todos los grupos de opciones (apariencia, minutos para recordar, tamaño de letra), la opción elegida se marca con borde verde de 2 dp, fondo verde muy suave y texto en negrita; nunca solo con un tono un poco más oscuro. TalkBack anuncia cuál está elegida.
+  - "Aviso diario de compra", "Revisar permisos y batería" y "Acerca de A Tiempo" son renglones de lista (no botones con borde), con la hora del aviso a la derecha en verde.
 - **Acerca de:** en este orden: nombre y versión (de la app instalada), `about_credit`, botón "Enviar mi opinión", fila de enlaces (Instagram, LinkedIn, X, GitHub) y `about_disclaimer`.
   - "Enviar mi opinión" abre la app de correo con `ACTION_SENDTO` (`mailto:deykpina.proyectos@gmail.com`), asunto `about_feedback_subject` y el cuerpo `about_feedback_body` con versión de la app, versión de Android y marca y modelo del teléfono. Nada se envía solo: la persona ve el borrador y decide. Sin app de correo, se muestra `about_no_email`.
   - Redes en `deykpina`; repositorio en `github.com/deypina/a-tiempo`.
 
-Diseño "cuaderno cálido" (`ui/theme/Theme.kt` y `ui/common/Paper.kt`):
-- Fondo color papel (`#F5EFE3`; de noche `#17140F`), tinta casi negra y un solo acento verde botica (`#2E5A44`) para botones principales y "tomada". Los avisos van en rojo ladrillo, siempre con texto (no solo color).
-- Tarjetas del color del papel con una línea de 1 dp, sin sombras. Esquinas de 6 a 8 dp, nada de botones en forma de píldora. Las pantallas usan `Button`, `OutlinedButton` y `Card` de `ui/common/Paper.kt`, no los de Material.
-- Títulos con la letra serif del teléfono (no se descarga ninguna fuente). El resto, sans de 18 sp.
-- En Hoy, la hora va en el margen izquierdo de cada toma, como en una libreta.
-- Tema claro por defecto, respetando el modo oscuro del sistema.
+Diseño "libreta" (`ui/theme/Theme.kt` y `ui/common/Paper.kt`): la app se ve como una libreta de papel rayada, no como una app genérica.
+
+**Apariencia:** *Claro* por defecto; la persona elige en Ajustes *Claro*, *Oscuro* o *Como el teléfono* (preferencia `appearance`). La app arranca en claro aunque el teléfono esté en oscuro.
+
+**Colores base** (se mantienen): papel `#F5EFE3` (noche `#17140F`), tinta `#1E1A15` (noche `#ECE4D6`), verde botica `#2E5A44` para la acción principal y "tomada", ladrillo `#A13A22` para avisos, con sus versiones de noche. Se agregan:
+
+| Uso | Claro | Oscuro |
+|---|---|---|
+| Ocre: "quedan pocas" | `#8A5A12` | `#E3B25E` |
+| Línea de renglón | `#C9BBA3` | `#3F3933` |
+| Línea doble (arriba de cada lista y de la barra inferior) | tinta | tinta de noche |
+
+**Colores de medicamento** (`colorKey`; en modo oscuro se usa la versión clara de cada uno):
+
+| Clave | Nombre | Claro | Oscuro |
+|---|---|---|---|
+| `azul` | Azul | `#3D6A8E` | `#7FA6C8` |
+| `rosa` | Rosa vieja | `#B0566B` | `#CF8396` |
+| `mostaza` | Mostaza | `#C99A2E` | `#D9B158` |
+| `oliva` | Oliva | `#6E7F3A` | `#A3B26A` |
+| `ciruela` | Ciruela | `#7A5A8C` | `#A98BBA` |
+| `blanco` | Blanco | `#FFFDF8` con borde | `#ECE4D6` |
+
+Reglas de color:
+- Todo texto tiene contraste de al menos 4,5:1 contra el papel, en claro y en oscuro (revisar en especial el ocre y el ladrillo).
+- El color nunca va solo: siempre acompañado de texto ("Se acabó", "Quedan 2", "Tomada").
+- Nada de degradados, sombras ni fondos teñidos detrás de los avisos.
+
+**Forma:**
+- **Sin tarjetas** (`Card`) para tomas ni medicamentos. Cada toma y cada medicamento es un renglón; entre renglones, una línea de 1 dp del color "línea de renglón". Arriba de cada lista, una línea doble de tinta (como el margen de una agenda).
+- **Esquinas casi rectas:** 6 dp en botones y campos. Nada de formas de píldora, excepto los círculos de color de cada medicamento.
+- **Botones:** son lo único que parece botón. Relleno verde para la acción principal, con borde verde para la secundaria, subrayado para acciones pequeñas ("Deshacer", "Recordar en 5 minutos"). Mínimo 56 dp de alto; los subrayados, mínimo 44 dp de zona táctil. Las pantallas usan los botones de `ui/common/Paper.kt`, no los de Material.
+- **Bloque IMPORTANTE** (se acabó un medicamento, quedan pocas): no va en caja. Es un bloque de texto debajo del saludo: la palabra pequeña en mayúsculas "IMPORTANTE" en ladrillo y debajo el mensaje, con la parte clave en negrita y color. Si hay acción, va como enlace subrayado dentro del texto.
+- **Barra inferior:** sin el indicador en forma de píldora de Material (`indicatorColor` transparente). La pestaña activa se marca con ícono y texto en verde y la palabra subrayada; las otras en gris cálido. Fondo del color del papel con línea doble arriba.
+
+**Tipografía** (incluida en la app, no se descarga y no se agrega permiso de INTERNET):
+- Títulos en *Literata*; texto en *Atkinson Hyperlegible* (diseñada para personas con baja visión).
+- Los archivos `.ttf` van en `res/font`. Ambas tienen licencia SIL OFL 1.1; el texto de la licencia se guarda en el repositorio.
+- El texto que la persona lee mide al menos 18 sp; las etiquetas cortas ("a. m.", "AHORA", "IMPORTANTE") miden de 15 a 16 sp. Se respeta el tamaño de letra del sistema.
 
 ## 6. Respaldo
 
@@ -194,6 +257,8 @@ Diseño "cuaderno cálido" (`ui/theme/Theme.kt` y `ui/common/Paper.kt`):
 
 - Unitarias del dominio: confirmar, idempotencia, deshacer, umbrales (incluidos cruces dobles y medias pastillas), compra, ajuste, días restantes, próxima ocurrencia de alarma (cambio de día, medianoche).
 - Instrumentadas mínimas: DAO de Room.
+- Migración de Room (`MigrationTestHelper`, en el emulador): crea una base de datos versión 1 con medicamentos, horarios, tomas y movimientos, la migra a la versión 2 y comprueba que todo sigue igual y que cada medicamento tiene un color distinto, en orden de `id`.
+- Unitarias: primer color libre y formato de hora en 12 h (medianoche, mediodía, sin cero adelante).
 - De punta a punta (`app/src/androidTest/.../e2e`): la app real en un emulador Android 15 dentro de GitHub Actions (trabajo `e2e`, `./gradlew connectedDebugAndroidTest`). Cada prueba empieza con la app recién instalada (Test Orchestrator con `clearPackageData`). Cubren bienvenida, agregar medicamento, "Ya la tomé" y "Deshacer" desde Hoy, compra e historial. Una versión (etiqueta `v*`) solo se publica si pasan. Siguen siendo manuales: que la alarma suene a la hora, la pantalla bloqueada y el tamaño de letra del teléfono.
 - Las librerías de prueba (`androidTestImplementation`) no entran en el APK de la app.
 - El APK de prueba de GitHub Actions se firma siempre con la misma llave de depuración (secreto `DEBUG_KEYSTORE_BASE64`), para instalarlo encima del anterior sin perder datos. No es la llave de las versiones publicadas.
