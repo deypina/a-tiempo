@@ -64,6 +64,9 @@ import ec.atiempo.app.ui.theme.Libreta
 /** Glyph before "Tomada a las…"; the words say it too. */
 private const val CHECK_GLYPH = "✓ "
 
+/** Wide enough for "ATRASADA", so every row keeps the same margin; grows with big fonts. */
+private val HourColumnMinWidth = 104.dp
+
 @Composable
 fun TodayScreen(
     onPurchase: (Long) -> Unit,
@@ -177,7 +180,7 @@ private fun HourRow(
     ) {
         Column(
             modifier = Modifier
-                .widthIn(min = 78.dp)
+                .widthIn(min = HourColumnMinWidth)
                 .padding(top = 14.dp, bottom = 14.dp, end = 12.dp),
         ) {
             Text(time, style = MaterialTheme.typography.titleLarge, color = hourColor, softWrap = false)

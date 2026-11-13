@@ -23,17 +23,18 @@ private val appLocale: Locale = Locale.forLanguageTag("es-EC")
 fun formatTime12(time: LocalTime): String {
     val hour12 = if (time.hour % 12 == 0) 12 else time.hour % 12
     val minutes = time.minute.toString().padStart(2, '0')
-    val suffix = if (time.hour < 12) "a. m." else "p. m."
-    return "$hour12:$minutes $suffix"
+    // Non-breaking spaces: "4:12 p. m." never splits across two lines.
+    val suffix = if (time.hour < 12) "a.\u00A0m." else "p.\u00A0m."
+    return "$hour12:$minutes\u00A0$suffix"
 }
 
 /**
- * [formatTime12] split at its first space: "3:30" and "p. m.", for the hour column of Hoy,
+ * [formatTime12] split at its first (non-breaking) space: "3:30" and "p. m.", for the hour column of Hoy,
  * where the suffix sits below the time in a small label.
  */
 fun splitTime12(time: LocalTime): Pair<String, String> {
     val text = formatTime12(time)
-    val space = text.indexOf(' ')
+    val space = text.indexOf('\u00A0')
     return text.substring(0, space) to text.substring(space + 1)
 }
 
