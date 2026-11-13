@@ -1,18 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Clock face: a ring with two hands, centered in the 66dp safe zone. -->
+<!-- Logo de A Tiempo: la "A" (Literata) con una cápsula como travesaño. Centrado en la zona segura de 66 dp. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <path
-        android:pathData="M54,30a24,24 0,1 1,0 48a24,24 0,1 1,0 -48z"
-        android:strokeWidth="5"
-        android:strokeColor="#FFFFFF" />
-    <path
-        android:pathData="M54,40L54,54L64,60"
-        android:strokeLineCap="round"
-        android:strokeLineJoin="round"
-        android:strokeWidth="5"
-        android:strokeColor="#FFFFFF" />
+    <group android:translateX="10.320" android:translateY="10.320" android:scaleX="0.78" android:scaleY="0.78">
+        <group android:translateX="28.323" android:translateY="85" android:scaleX="0.07945" android:scaleY="-0.07945">
+            <path android:fillColor="#F5EFE3" android:pathData="M-2.9998779296875 0V12L33.2001953125 18.10003662109375Q50.8001708984375 21.800048828125 61.80010986328125 31.550079345703125Q72.800048828125 41.30010986328125 83.70001220703125 73.70001220703125L301.9998779296875 730H397.89874267578125L617.5985107421875 72.7999267578125Q626.7984619140625 45.10003662109375 635.0484313964844 34.60003662109375Q643.2984008789062 24.10003662109375 665.4983520507812 19.800048828125L699.6984252929688 13.4000244140625V0H400.50006103515625V12L448.50030517578125 18.10003662109375Q468.6002197265625 20.4000244140625 472.90020751953125 31.550018310546875Q477.2001953125 42.70001220703125 469.30023193359375 69.39990234375L416.6002197265625 248H167L111 73.89996337890625Q103.10003662109375 48.2000732421875 108.89996337890625 34.10003662109375Q114.69989013671875 20 137.599853515625 17.70001220703125L192.50006103515625 11.29998779296875V0ZM174.29998779296875 266H409.90020751953125L295.2000732421875 635.9005737304688H292.90008544921875Z"/>
+        </group>
+        <path android:fillColor="#2E5A44" android:pathData="M41,58.0 h30 a7,7 0 0 1 0,14 h-30 a7,7 0 0 1 0,-14z"/>
+        <path android:strokeColor="#F5EFE3" android:strokeWidth="3" android:pathData="M41,58 h30 a7,7 0 0 1 0,14 h-30 a7,7 0 0 1 0,-14z"/>
+        <path android:fillColor="#E3B25E" android:pathData="M56,59.5 h15.5 a5.5,5.5 0 0 1 0,11 H56z"/>
+        <path android:strokeColor="#F5EFE3" android:strokeWidth="2" android:pathData="M56,59.5 v11"/>
+    </group>
 </vector>
